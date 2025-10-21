@@ -2,7 +2,12 @@
 
 # Java Refactoring & Complexity Assistant
 
-> Java kod tabanları için: **(1)** statik analiz + Büyük-O (O(1), O(n), O(n log n), O(n²) …) tahmini, **(2)** güvenli otomatik refactoring, **(3)** performans profili ve kanıta dayalı iyileştirme, **(4)** Pragmatic Programmer ilkeleriyle (DRY, Orthogonality, YAGNI, Tracer Bullets) etiketlenmiş bulgular, **(5)** VS Code entegrasyonu ve Spring Boot tabanlı web arayüzü.
+> Java kod tabanları için: 
+**(1)** statik analiz + Büyük-O (O(1), O(n), O(n log n), O(n²) …) tahmini, 
+**(2)** güvenli otomatik refactoring, 
+**(3)** performans profili ve kanıta dayalı iyileştirme, 
+**(4)** Pragmatic Programmer ilkeleriyle (DRY, Orthogonality, YAGNI, Tracer Bullets) etiketlenmiş bulgular, 
+**(5)** VS Code entegrasyonu ve Spring Boot tabanlı web arayüzü.
 
 ---
 
