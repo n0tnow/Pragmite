@@ -1,0 +1,43 @@
+# Pragmite Project Root .gitignore
+
+# Java Projects Collection (108MB - large test data)
+Java-Projects-Collections-main.zip
+
+# Analysis Report outputs
+*.json
+!.pragmite.yaml
+!pragmite-core/pom.xml
+!pragmite-vscode-extension/package.json
+!pragmite-vscode-extension/package-lock.json
+
+# Test outputs
+test-ecommerce/output/
+test-ecommerce/reports/
+test-project/output/
+test-projects/output/
+
+# Logs from all modules
+*.log
+logs/
+
+# IDE Settings
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Build directories
+target/
+build/
+dist/

@@ -1,0 +1,110 @@
+{
+  "name": "pragmite",
+  "displayName": "Pragmite - Java Code Quality Analyzer",
+  "description": "Real-time Java code quality analysis with Big-O complexity detection, 31 code smell detectors, and Live Dashboard",
+  "version": "1.0.4",
+  "publisher": "pragmite",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Formatters"
+  ],
+  "keywords": [
+    "java",
+    "code quality",
+    "static analysis",
+    "complexity",
+    "code smells",
+    "refactoring"
+  ],
+  "activationEvents": [
+    "onLanguage:java"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pragmite.analyzeFile",
+        "title": "Pragmite: Analyze Current File"
+      },
+      {
+        "command": "pragmite.analyzeWorkspace",
+        "title": "Pragmite: Analyze Entire Workspace"
+      },
+      {
+        "command": "pragmite.showReport",
+        "title": "Pragmite: Show Quality Report"
+      },
+      {
+        "command": "pragmite.openDashboard",
+        "title": "Pragmite: Open Live Dashboard"
+      }
+    ],
+    "configuration": {
+      "title": "Pragmite",
+      "properties": {
+        "pragmite.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable Pragmite analysis"
+        },
+        "pragmite.javaPath": {
+          "type": "string",
+          "default": "java",
+          "description": "Path to Java executable"
+        },
+        "pragmite.analyzeOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Analyze file on save"
+        },
+        "pragmite.showInlineHints": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show inline complexity hints"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == java",
+          "command": "pragmite.analyzeFile",
+          "group": "pragmite"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "pragmiteResults",
+          "name": "Pragmite Results"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/vscode": "^1.106.1",
+    "@vscode/test-electron": "^2.5.2",
+    "typescript": "^5.9.3",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pragmite/pragmite-vscode"
+  },
+  "license": "MIT"
+}
