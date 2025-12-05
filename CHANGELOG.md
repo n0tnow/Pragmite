@@ -5,6 +5,14 @@ All notable changes to the Pragmite project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2025-12-05
+
+### Fixed
+- **Critical: JFR Profiling Display Error** 🔥
+  - Fixed `toLocaleString()` error on undefined method.value in CPU hotspots
+  - Added null-safe operators (`?.`) for method.key and method.value
+  - Prevents console errors when profiling data is incomplete
+
 ## [1.0.6] - 2025-12-05
 
 ### Fixed

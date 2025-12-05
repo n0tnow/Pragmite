@@ -1668,8 +1668,8 @@ export class PragmiteWebServer {
                             \${data.profileReport.topCpuMethods.slice(0, 10).map((method, idx) => \`
                                 <div class="hotspot-item">
                                     <span class="hotspot-rank">#\${idx + 1}</span>
-                                    <span class="hotspot-method">\${method.key}</span>
-                                    <span class="hotspot-count">\${method.value.toLocaleString()} samples</span>
+                                    <span class="hotspot-method">\${method?.key || 'Unknown'}</span>
+                                    <span class="hotspot-count">\${(method?.value || 0).toLocaleString()} samples</span>
                                 </div>
                             \`).join('')}
                         </div>
