@@ -5,6 +5,36 @@ All notable changes to the Pragmite project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2025-12-05
+
+### Added
+- **Modal Scrolling** 📜
+  - Added max-height (85vh) and overflow-y: auto to modal content
+  - Custom scrollbar styling for better UX
+  - Long content now scrollable in modal popups
+
+- **Collapse State Preservation** 📌
+  - Collapse/expand state persists across data updates
+  - Uses Set-based state management for collapsed groups
+  - Auto-restores state after SSE updates
+
+- **Auto-fix Button for Refactoring** 🔧
+  - Added prominent "Apply Auto-fix" button in suggestion modals
+  - Green gradient button with hover effects
+  - Shows loading state while processing
+  - Alert message for auto-fix status (integration coming soon)
+
+### Fixed
+- **Critical: CK Metrics Null-Safe Error** 📊
+  - Fixed undefined property access in CK Metrics rendering
+  - Added null-safe operators (?.) for all CK metric values
+  - Prevents toLocaleString() errors on missing data
+
+### Changed
+- Modal content now uses null-safe value extraction for CK metrics
+- Improved button styling with gradients and shadows
+- Better visual feedback on auto-fix button interactions
+
 ## [1.0.7] - 2025-12-05
 
 ### Fixed
