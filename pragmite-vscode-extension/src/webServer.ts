@@ -1416,12 +1416,50 @@ export class PragmiteWebServer {
                 const response = await fetch('/api/analysis');
                 const data = await response.json();
 
+                // Hide loading container
+                const loadingContainer = document.getElementById('loadingContainer');
+                const dashboardContainer = document.getElementById('dashboardContainer');
+
                 if (data && data.totalFiles) {
                     currentData = data;
+                    if (loadingContainer) loadingContainer.style.display = 'none';
+                    if (dashboardContainer) dashboardContainer.style.display = 'block';
                     renderDashboard(data);
+                } else {
+                    // No analysis data yet - show helpful message
+                    if (loadingContainer) {
+                        loadingContainer.innerHTML = \`
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <div style="font-size: 64px; margin-bottom: 20px;">📊</div>
+                                <h2 style="color: #94a3b8; font-size: 24px; margin-bottom: 16px;">No Analysis Data Yet</h2>
+                                <p style="color: #64748b; font-size: 16px; margin-bottom: 24px;">
+                                    Run an analysis to see your Java code quality metrics
+                                </p>
+                                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 20px; max-width: 500px; margin: 0 auto;">
+                                    <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 0;">
+                                        <strong>To get started:</strong><br>
+                                        1. Open VSCode<br>
+                                        2. Press <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Ctrl+Shift+P</code><br>
+                                        3. Run <strong>"Pragmite: Analyze Entire Workspace"</strong><br>
+                                        4. Dashboard will update automatically ⚡
+                                    </p>
+                                </div>
+                            </div>
+                        \`;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
+                const loadingContainer = document.getElementById('loadingContainer');
+                if (loadingContainer) {
+                    loadingContainer.innerHTML = \`
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                            <h2 style="color: #ef4444; font-size: 24px; margin-bottom: 16px;">Error Loading Data</h2>
+                            <p style="color: #94a3b8;">\${error.message}</p>
+                        </div>
+                    \`;
+                }
             }
         }
 
@@ -1608,19 +1646,19 @@ export class PragmiteWebServer {
                     <div class="profiling-stats">
                         <div class="prof-stat">
                             <div class="prof-stat-label">CPU Samples</div>
-                            <div class="prof-stat-value">\${data.profileReport.totalCpuSamples.toLocaleString()}</div>
+                            <div class="prof-stat-value">\${(data.profileReport.totalCpuSamples || 0).toLocaleString()}</div>
                         </div>
                         <div class="prof-stat">
                             <div class="prof-stat-label">Avg CPU Load</div>
-                            <div class="prof-stat-value">\${data.profileReport.averageCpuLoad.toFixed(2)}%</div>
+                            <div class="prof-stat-value">\${(data.profileReport.averageCpuLoad || 0).toFixed(2)}%</div>
                         </div>
                         <div class="prof-stat">
                             <div class="prof-stat-label">Max CPU Load</div>
-                            <div class="prof-stat-value">\${data.profileReport.maxCpuLoad.toFixed(2)}%</div>
+                            <div class="prof-stat-value">\${(data.profileReport.maxCpuLoad || 0).toFixed(2)}%</div>
                         </div>
                         <div class="prof-stat">
                             <div class="prof-stat-label">Total Allocations</div>
-                            <div class="prof-stat-value">\${(data.profileReport.totalAllocations / 1024 / 1024).toFixed(2)} MB</div>
+                            <div class="prof-stat-value">\${((data.profileReport.totalAllocations || 0) / 1024 / 1024).toFixed(2)} MB</div>
                         </div>
                     </div>
                     \${data.profileReport.topCpuMethods && data.profileReport.topCpuMethods.length > 0 ? \`
@@ -1652,8 +1690,8 @@ export class PragmiteWebServer {
                             <div class="benchmark-item">
                                 <div class="benchmark-name">\${bench.name}</div>
                                 <div class="benchmark-score">
-                                    <span class="score-value">\${bench.score.toFixed(3)}</span>
-                                    <span class="score-unit">\${bench.scoreUnit}</span>
+                                    <span class="score-value">\${(bench.score || 0).toFixed(3)}</span>
+                                    <span class="score-unit">\${bench.scoreUnit || ''}</span>
                                 </div>
                                 <div class="benchmark-mode">\${bench.mode}</div>
                             </div>

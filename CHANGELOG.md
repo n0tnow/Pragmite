@@ -5,6 +5,22 @@ All notable changes to the Pragmite project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2025-12-05
+
+### Fixed
+- **Critical: Dashboard Loading Issue** 🎯
+  - Fixed "Loading Data..." infinite loop when no analysis exists
+  - Added helpful "No Analysis Data Yet" message with step-by-step instructions
+  - Fixed null-safe issues with `toFixed()` calls in JFR profiling section
+  - Fixed null-safe issues with benchmark score display
+  - Dashboard now shows clear guidance when first opened
+  - Error messages display properly when data loading fails
+
+### Changed
+- Dashboard now hides loading spinner and shows actual content or helpful message
+- Improved error handling in `loadData()` function
+- Better user experience for first-time users
+
 ## [1.0.5] - 2025-12-05
 
 ### Added
