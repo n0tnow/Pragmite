@@ -527,10 +527,31 @@ export class PragmiteWebServer {
             border-radius: 16px;
             padding: 32px;
             max-width: 700px;
+            max-height: 85vh;
             width: 90%;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
             animation: slideUp 0.3s ease-out;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         @keyframes slideUp {
@@ -1591,40 +1612,47 @@ export class PragmiteWebServer {
                         <span>Code Quality Metrics (CK)</span>
                     </div>
                     <div class="ck-metrics-grid">
-                        \${data.fileAnalyses.filter(fa => fa.ckMetrics).map(fa => \`
-                            <div class="ck-metric-card \${fa.ckMetrics.wmc > 30 || fa.ckMetrics.lcom > 50 || fa.ckMetrics.cbo > 10 ? 'god-class-warning' : ''}">
+                        \${data.fileAnalyses.filter(fa => fa.ckMetrics).map(fa => {
+                            const wmc = fa.ckMetrics?.wmc || 0;
+                            const dit = fa.ckMetrics?.dit || 0;
+                            const noc = fa.ckMetrics?.noc || 0;
+                            const cbo = fa.ckMetrics?.cbo || 0;
+                            const rfc = fa.ckMetrics?.rfc || 0;
+                            const lcom = fa.ckMetrics?.lcom || 0;
+                            return \`
+                            <div class="ck-metric-card \${wmc > 30 || lcom > 50 || cbo > 10 ? 'god-class-warning' : ''}">
                                 <div class="ck-metric-header">
                                     <div class="ck-class-name">\${fa.className || 'Unknown'}</div>
-                                    \${fa.ckMetrics.wmc > 30 && fa.ckMetrics.lcom > 50 && fa.ckMetrics.cbo > 10 ? '<span class="god-class-badge">⚠️ God Class</span>' : ''}
+                                    \${wmc > 30 && lcom > 50 && cbo > 10 ? '<span class="god-class-badge">⚠️ God Class</span>' : ''}
                                 </div>
                                 <div class="ck-metrics-values">
                                     <div class="ck-value-item">
                                         <span class="ck-label">WMC</span>
-                                        <span class="ck-value \${fa.ckMetrics.wmc > 30 ? 'warning' : ''}">\${fa.ckMetrics.wmc}</span>
+                                        <span class="ck-value \${wmc > 30 ? 'warning' : ''}">\${wmc}</span>
                                     </div>
                                     <div class="ck-value-item">
                                         <span class="ck-label">DIT</span>
-                                        <span class="ck-value">\${fa.ckMetrics.dit}</span>
+                                        <span class="ck-value">\${dit}</span>
                                     </div>
                                     <div class="ck-value-item">
                                         <span class="ck-label">NOC</span>
-                                        <span class="ck-value">\${fa.ckMetrics.noc}</span>
+                                        <span class="ck-value">\${noc}</span>
                                     </div>
                                     <div class="ck-value-item">
                                         <span class="ck-label">CBO</span>
-                                        <span class="ck-value \${fa.ckMetrics.cbo > 10 ? 'warning' : ''}">\${fa.ckMetrics.cbo}</span>
+                                        <span class="ck-value \${cbo > 10 ? 'warning' : ''}">\${cbo}</span>
                                     </div>
                                     <div class="ck-value-item">
                                         <span class="ck-label">RFC</span>
-                                        <span class="ck-value">\${fa.ckMetrics.rfc}</span>
+                                        <span class="ck-value">\${rfc}</span>
                                     </div>
                                     <div class="ck-value-item">
                                         <span class="ck-label">LCOM</span>
-                                        <span class="ck-value \${fa.ckMetrics.lcom > 50 ? 'warning' : ''}">\${fa.ckMetrics.lcom}</span>
+                                        <span class="ck-value \${lcom > 50 ? 'warning' : ''}">\${lcom}</span>
                                     </div>
                                 </div>
                             </div>
-                        \`).join('')}
+                        \`;}).join('')}
                     </div>
                     <div class="ck-legend">
                         <span><strong>WMC:</strong> Weighted Methods per Class</span>
@@ -1774,6 +1802,9 @@ export class PragmiteWebServer {
 
             html += '</div>';
             document.getElementById('content').innerHTML = html;
+
+            // Restore collapse state after re-render
+            setTimeout(() => restoreCollapseState(), 50);
         }
 
         function showModalByFileIndex(fileIndex, smellIndex) {
@@ -1894,10 +1925,20 @@ export class PragmiteWebServer {
             }
         });
 
+        // Store collapse state
+        let collapsedGroups = new Set();
+
         function toggleFileGroup(index) {
             const fileGroup = document.getElementById(\`file-group-\${index}\`);
             if (fileGroup) {
                 fileGroup.classList.toggle('collapsed');
+
+                // Save collapse state
+                if (fileGroup.classList.contains('collapsed')) {
+                    collapsedGroups.add(index);
+                } else {
+                    collapsedGroups.delete(index);
+                }
             }
         }
 
@@ -1906,12 +1947,24 @@ export class PragmiteWebServer {
             fileGroups.forEach(group => {
                 group.classList.remove('collapsed');
             });
+            collapsedGroups.clear();
         }
 
         function collapseAllFiles() {
             const fileGroups = document.querySelectorAll('.file-group');
-            fileGroups.forEach(group => {
+            fileGroups.forEach((group, index) => {
                 group.classList.add('collapsed');
+                collapsedGroups.add(index);
+            });
+        }
+
+        // Restore collapse state after re-render
+        function restoreCollapseState() {
+            collapsedGroups.forEach(index => {
+                const fileGroup = document.getElementById(\`file-group-\${index}\`);
+                if (fileGroup) {
+                    fileGroup.classList.add('collapsed');
+                }
             });
         }
 
@@ -1977,8 +2030,34 @@ export class PragmiteWebServer {
 
                 \${suggestion.autoFixAvailable ? \`
                     <div class="modal-section">
-                        <div style="padding: 12px; background: rgba(0, 200, 100, 0.1); border: 1px solid rgba(0, 200, 100, 0.3); border-radius: 8px; color: #00c864;">
-                            <strong>✨ Auto-fix available!</strong> This refactoring can be applied automatically.
+                        <div style="padding: 16px; background: rgba(0, 200, 100, 0.1); border: 1px solid rgba(0, 200, 100, 0.3); border-radius: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="color: #00c864;">
+                                    <strong>✨ Auto-fix available!</strong><br>
+                                    <span style="font-size: 13px; opacity: 0.9;">This refactoring can be applied automatically.</span>
+                                </div>
+                                <button
+                                    onclick="applyAutoFix(\${index})"
+                                    style="
+                                        padding: 10px 20px;
+                                        background: linear-gradient(135deg, #00c864 0%, #00a854 100%);
+                                        color: white;
+                                        border: none;
+                                        border-radius: 8px;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: all 0.2s;
+                                        box-shadow: 0 4px 12px rgba(0, 200, 100, 0.3);
+                                    "
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 200, 100, 0.4)';"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 200, 100, 0.3)';"
+                                >
+                                    🔧 Apply Auto-fix
+                                </button>
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; padding-top: 8px; border-top: 1px solid rgba(0, 200, 100, 0.2);">
+                                💡 Click the button to automatically apply this refactoring to your code
+                            </div>
                         </div>
                     </div>
                 \` : ''}
@@ -1986,6 +2065,32 @@ export class PragmiteWebServer {
 
             modalBody.innerHTML = bodyHtml;
             modal.classList.add('active');
+        }
+
+        function applyAutoFix(index) {
+            if (!currentData || !currentData.suggestions || !currentData.suggestions[index]) {
+                console.error('Suggestion not found:', index);
+                return;
+            }
+
+            const suggestion = currentData.suggestions[index];
+            console.log('Applying auto-fix for:', suggestion.title);
+
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Applying...';
+            button.disabled = true;
+            button.style.opacity = '0.7';
+
+            // TODO: Integrate with VSCode command to apply refactoring
+            // For now, show a message
+            setTimeout(() => {
+                alert('Auto-fix feature coming soon!\\n\\nThis will automatically apply the refactoring to your code.\\n\\nSuggestion: ' + suggestion.title);
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.style.opacity = '1';
+            }, 500);
         }
 
         setupSSE();
