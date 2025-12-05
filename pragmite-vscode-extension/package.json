@@ -2,7 +2,7 @@
   "name": "pragmite",
   "displayName": "Pragmite - Java Code Quality Analyzer",
   "description": "Real-time Java code quality analysis with Big-O complexity detection, 31 code smell detectors, and Live Dashboard",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "publisher": "pragmite",
   "engines": {
     "vscode": "^1.106.0"

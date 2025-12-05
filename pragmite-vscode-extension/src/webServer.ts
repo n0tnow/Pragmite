@@ -886,8 +886,9 @@ export class PragmiteWebServer {
         }
 
         body.light-theme .glass {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         body.light-theme .header {
@@ -904,21 +905,25 @@ export class PragmiteWebServer {
         }
 
         body.light-theme .stat-card {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         body.light-theme .stat-label {
-            color: #64748b;
+            color: #475569;
+            font-weight: 600;
         }
 
         body.light-theme .stat-value {
-            color: #1e293b;
+            color: #0f172a;
+            font-weight: 700;
         }
 
         body.light-theme .file-group {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         body.light-theme .file-name {
@@ -926,12 +931,12 @@ export class PragmiteWebServer {
         }
 
         body.light-theme .issue-item {
-            background: rgba(241, 245, 249, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         body.light-theme .issue-item:hover {
-            background: rgba(226, 232, 240, 0.9);
+            background: #e2e8f0;
         }
 
         body.light-theme .issue-type {
@@ -943,21 +948,24 @@ export class PragmiteWebServer {
         }
 
         body.light-theme .quality-details {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         body.light-theme .quality-metric {
-            background: rgba(241, 245, 249, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         body.light-theme .quality-metric-label {
-            color: #64748b;
+            color: #334155;
+            font-weight: 600;
         }
 
         body.light-theme .quality-metric-value {
-            color: #1e293b;
+            color: #0f172a;
+            font-weight: 700;
         }
 
         body.light-theme .theme-toggle-btn {
@@ -978,8 +986,9 @@ export class PragmiteWebServer {
         }
 
         body.light-theme .files-header {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         body.light-theme .files-header-title {
@@ -1003,6 +1012,268 @@ export class PragmiteWebServer {
 
         body.light-theme .collapse-icon {
             color: #64748b;
+        }
+
+        /* CK Metrics Section */
+        .ck-metrics-section {
+            margin-bottom: 30px;
+            padding: 24px;
+        }
+
+        .ck-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ck-metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .ck-metric-card.god-class-warning {
+            border: 2px solid #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .ck-metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .ck-class-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .god-class-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .ck-metrics-values {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .ck-value-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ck-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .ck-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .ck-value.warning {
+            color: #ffa500;
+        }
+
+        .ck-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 12px;
+            color: #888;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* JFR Profiling Section */
+        .profiling-section, .benchmark-section {
+            margin-bottom: 30px;
+            padding: 24px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .profiling-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .prof-stat {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .prof-stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .prof-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00c864;
+        }
+
+        .hotspot-section h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .hotspot-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hotspot-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+        }
+
+        .hotspot-rank {
+            font-weight: 700;
+            color: #ffa500;
+            min-width: 30px;
+        }
+
+        .hotspot-method {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .hotspot-count {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* JMH Benchmark Section */
+        .benchmark-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .benchmark-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .benchmark-name {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .benchmark-score {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            margin: 0 16px;
+        }
+
+        .score-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00c864;
+        }
+
+        .score-unit {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .benchmark-mode {
+            font-size: 12px;
+            color: #888;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .benchmark-summary {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .benchmark-summary code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Light theme overrides for new sections */
+        body.light-theme .ck-metric-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.light-theme .ck-metric-card.god-class-warning {
+            border: 2px solid #ff6b6b;
+            background: #fff5f5;
+        }
+
+        body.light-theme .prof-stat,
+        body.light-theme .hotspot-item,
+        body.light-theme .benchmark-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.light-theme .ck-label,
+        body.light-theme .prof-stat-label,
+        body.light-theme .hotspot-count,
+        body.light-theme .score-unit,
+        body.light-theme .benchmark-mode {
+            color: #64748b;
+        }
+
+        body.light-theme .section-title,
+        body.light-theme .ck-class-name {
+            color: #1e293b;
         }
     </style>
 </head>
@@ -1252,7 +1523,7 @@ export class PragmiteWebServer {
                             <div class="quality-metric-label">⚡ Performance</div>
                             <div class="quality-metric-description">Time/Space Efficiency</div>
                         </div>
-                        <div class="quality-metric-value">\${Math.round(data.qualityScore.performanceScore || 0)}</div>
+                        <div class="quality-metric-value">\${Math.round(data.qualityScore.perfScore || 0)}</div>
                     </div>
                 </div>
                 \` : ''}
@@ -1272,6 +1543,129 @@ export class PragmiteWebServer {
                             <div class="suggestion-description">\${suggestion.description || 'Click to view details'}</div>
                         </div>
                     \`).join('')}
+                </div>
+                \` : ''}
+
+                \${(data.fileAnalyses && data.fileAnalyses.some(fa => fa.ckMetrics)) ? \`
+                <div class="ck-metrics-section glass">
+                    <div class="section-title">
+                        <span>📊</span>
+                        <span>Code Quality Metrics (CK)</span>
+                    </div>
+                    <div class="ck-metrics-grid">
+                        \${data.fileAnalyses.filter(fa => fa.ckMetrics).map(fa => \`
+                            <div class="ck-metric-card \${fa.ckMetrics.wmc > 30 || fa.ckMetrics.lcom > 50 || fa.ckMetrics.cbo > 10 ? 'god-class-warning' : ''}">
+                                <div class="ck-metric-header">
+                                    <div class="ck-class-name">\${fa.className || 'Unknown'}</div>
+                                    \${fa.ckMetrics.wmc > 30 && fa.ckMetrics.lcom > 50 && fa.ckMetrics.cbo > 10 ? '<span class="god-class-badge">⚠️ God Class</span>' : ''}
+                                </div>
+                                <div class="ck-metrics-values">
+                                    <div class="ck-value-item">
+                                        <span class="ck-label">WMC</span>
+                                        <span class="ck-value \${fa.ckMetrics.wmc > 30 ? 'warning' : ''}">\${fa.ckMetrics.wmc}</span>
+                                    </div>
+                                    <div class="ck-value-item">
+                                        <span class="ck-label">DIT</span>
+                                        <span class="ck-value">\${fa.ckMetrics.dit}</span>
+                                    </div>
+                                    <div class="ck-value-item">
+                                        <span class="ck-label">NOC</span>
+                                        <span class="ck-value">\${fa.ckMetrics.noc}</span>
+                                    </div>
+                                    <div class="ck-value-item">
+                                        <span class="ck-label">CBO</span>
+                                        <span class="ck-value \${fa.ckMetrics.cbo > 10 ? 'warning' : ''}">\${fa.ckMetrics.cbo}</span>
+                                    </div>
+                                    <div class="ck-value-item">
+                                        <span class="ck-label">RFC</span>
+                                        <span class="ck-value">\${fa.ckMetrics.rfc}</span>
+                                    </div>
+                                    <div class="ck-value-item">
+                                        <span class="ck-label">LCOM</span>
+                                        <span class="ck-value \${fa.ckMetrics.lcom > 50 ? 'warning' : ''}">\${fa.ckMetrics.lcom}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        \`).join('')}
+                    </div>
+                    <div class="ck-legend">
+                        <span><strong>WMC:</strong> Weighted Methods per Class</span>
+                        <span><strong>DIT:</strong> Depth of Inheritance Tree</span>
+                        <span><strong>NOC:</strong> Number of Children</span>
+                        <span><strong>CBO:</strong> Coupling Between Objects</span>
+                        <span><strong>RFC:</strong> Response For a Class</span>
+                        <span><strong>LCOM:</strong> Lack of Cohesion in Methods</span>
+                    </div>
+                </div>
+                \` : ''}
+
+                \${data.profileReport ? \`
+                <div class="profiling-section glass">
+                    <div class="section-title">
+                        <span>🔥</span>
+                        <span>JFR Performance Profiling</span>
+                    </div>
+                    <div class="profiling-stats">
+                        <div class="prof-stat">
+                            <div class="prof-stat-label">CPU Samples</div>
+                            <div class="prof-stat-value">\${data.profileReport.totalCpuSamples.toLocaleString()}</div>
+                        </div>
+                        <div class="prof-stat">
+                            <div class="prof-stat-label">Avg CPU Load</div>
+                            <div class="prof-stat-value">\${data.profileReport.averageCpuLoad.toFixed(2)}%</div>
+                        </div>
+                        <div class="prof-stat">
+                            <div class="prof-stat-label">Max CPU Load</div>
+                            <div class="prof-stat-value">\${data.profileReport.maxCpuLoad.toFixed(2)}%</div>
+                        </div>
+                        <div class="prof-stat">
+                            <div class="prof-stat-label">Total Allocations</div>
+                            <div class="prof-stat-value">\${(data.profileReport.totalAllocations / 1024 / 1024).toFixed(2)} MB</div>
+                        </div>
+                    </div>
+                    \${data.profileReport.topCpuMethods && data.profileReport.topCpuMethods.length > 0 ? \`
+                    <div class="hotspot-section">
+                        <h4>🔥 Top CPU Hotspots</h4>
+                        <div class="hotspot-list">
+                            \${data.profileReport.topCpuMethods.slice(0, 10).map((method, idx) => \`
+                                <div class="hotspot-item">
+                                    <span class="hotspot-rank">#\${idx + 1}</span>
+                                    <span class="hotspot-method">\${method.key}</span>
+                                    <span class="hotspot-count">\${method.value.toLocaleString()} samples</span>
+                                </div>
+                            \`).join('')}
+                        </div>
+                    </div>
+                    \` : ''}
+                </div>
+                \` : ''}
+
+                \${data.benchmarkResult ? \`
+                <div class="benchmark-section glass">
+                    <div class="section-title">
+                        <span>⚡</span>
+                        <span>JMH Benchmark Results</span>
+                    </div>
+                    \${data.benchmarkResult.benchmarks && data.benchmarkResult.benchmarks.length > 0 ? \`
+                    <div class="benchmark-list">
+                        \${data.benchmarkResult.benchmarks.map((bench, idx) => \`
+                            <div class="benchmark-item">
+                                <div class="benchmark-name">\${bench.name}</div>
+                                <div class="benchmark-score">
+                                    <span class="score-value">\${bench.score.toFixed(3)}</span>
+                                    <span class="score-unit">\${bench.scoreUnit}</span>
+                                </div>
+                                <div class="benchmark-mode">\${bench.mode}</div>
+                            </div>
+                        \`).join('')}
+                    </div>
+                    \` : '<div style="text-align: center; padding: 20px; color: #888;">No benchmark data available</div>'}
+                    \${data.benchmarkResult.slowestMethod || data.benchmarkResult.fastestMethod ? \`
+                    <div class="benchmark-summary">
+                        \${data.benchmarkResult.slowestMethod ? \`<div>🐌 Slowest: <code>\${data.benchmarkResult.slowestMethod}</code></div>\` : ''}
+                        \${data.benchmarkResult.fastestMethod ? \`<div>🚀 Fastest: <code>\${data.benchmarkResult.fastestMethod}</code></div>\` : ''}
+                    </div>
+                    \` : ''}
                 </div>
                 \` : ''}
 
