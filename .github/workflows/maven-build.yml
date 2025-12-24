@@ -24,7 +24,7 @@ jobs:
         cache: maven
 
     - name: Cache Maven packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -42,7 +42,7 @@ jobs:
       run: cd pragmite-core && mvn package -DskipTests -B
 
     - name: Upload JAR artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pragmite-jar
         path: pragmite-core/target/pragmite-core-*.jar
@@ -50,7 +50,7 @@ jobs:
 
     - name: Upload test reports
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-reports
         path: pragmite-core/target/surefire-reports/
@@ -72,24 +72,24 @@ jobs:
         distribution: 'temurin'
 
     - name: Download JAR artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: pragmite-jar
         path: ./artifacts
 
-    - name: Run Pragmite on test-ecommerce
+    - name: Run Pragmite on pragmite-test-project
       run: |
         cd artifacts
         JAR_FILE=$(ls pragmite-core-*.jar | head -n 1)
-        java -jar $JAR_FILE ../test-ecommerce -o ../test-ecommerce-report.json -f both
+        java -jar $JAR_FILE ../pragmite-test-project -o ../test-project-report.json -f both
       continue-on-error: true
 
     - name: Upload analysis report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: analysis-report
-        path: test-ecommerce-report.json
+        path: test-project-report.json
         retention-days: 30
 
   quality-gate:
