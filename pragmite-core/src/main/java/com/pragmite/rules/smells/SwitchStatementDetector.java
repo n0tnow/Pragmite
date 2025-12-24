@@ -12,10 +12,12 @@ import java.util.List;
 /**
  * Detects problematic switch statements that should be replaced with polymorphism.
  * Large switch statements often indicate missing abstraction and violate Open/Closed Principle.
+ *
+ * IMPROVED: 5 → 7 cases threshold. Switch can be cleaner than Strategy pattern for enums with < 7 cases.
  */
 public class SwitchStatementDetector implements SmellDetector {
 
-    private static final int MAX_CASES_THRESHOLD = 5;
+    private static final int MAX_CASES_THRESHOLD = 7;  // IMPROVED: 5 → 7
 
     @Override
     public List<CodeSmell> detect(CompilationUnit cu, String filePath, String content) {
@@ -26,6 +28,11 @@ public class SwitchStatementDetector implements SmellDetector {
             int caseCount = (int) entries.stream()
                 .filter(entry -> !entry.getLabels().isEmpty())
                 .count();
+
+            // Skip small switch statements - they're often cleaner than polymorphism
+            if (caseCount <= 3) {
+                return;  // 2-3 case switches are perfectly fine
+            }
 
             if (caseCount > MAX_CASES_THRESHOLD) {
                 CodeSmell smell = new CodeSmell(
@@ -40,8 +47,8 @@ public class SwitchStatementDetector implements SmellDetector {
                 smells.add(smell);
             }
 
-            // Check for duplicated logic across cases
-            if (hasDuplicatedLogic(entries)) {
+            // Only check for duplicated logic if we have many cases
+            if (caseCount > 4 && hasDuplicatedLogic(entries)) {
                 CodeSmell smell = new CodeSmell(
                     CodeSmellType.SWITCH_STATEMENT,
                     filePath,

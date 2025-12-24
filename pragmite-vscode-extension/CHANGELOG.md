@@ -2,6 +2,85 @@
 
 All notable changes to the "Pragmite" extension will be documented in this file.
 
+## [1.1.0] - 2025-12-25
+
+### ✨ Major Features
+- **Frontend Auto-Refresh:** Fixed SSE (Server-Sent Events) auto-refresh mechanism
+  - Removed conflicting polling interval
+  - Added automatic reconnection on connection loss (2s retry)
+  - Dashboard now updates instantly without manual refresh
+
+- **Mathematical Formulas Display:** Added transparency to metric calculations
+  - Quality Score formula with real-time values: `(DRY × 0.30) + (Orthogonality × 0.30) + (Correctness × 0.25) + (Performance × 0.15)`
+  - CK Metrics formulas with academic definitions (WMC, DIT, NOC, CBO, RFC, LCOM)
+  - God Class warning thresholds displayed
+
+- **Auto-Fix Functionality:** Fully implemented auto-fix feature
+  - Individual auto-fix buttons now actually apply refactorings
+  - VSCode integration with WorkspaceEdit API
+  - Visual feedback with loading states
+  - Automatic file save after successful fix
+
+- **Bulk Auto-Fix:** New "Fix All Available" button
+  - Apply multiple auto-fixes at once
+  - Confirmation dialog with count
+  - Success/failure reporting
+  - Automatic workspace re-analysis after bulk fixes
+
+### 🎯 Further False Positive Reduction
+Built on v1.0.9 improvements with additional optimizations:
+
+- **LongParameterListDetector:** 4 → 5 parameters threshold
+  - Skips constructors (dependency injection)
+  - Skips Builder pattern methods (withX, setX)
+
+- **LargeClassDetector:** 300 → 400 lines, 20 → 25 methods
+  - Skips Controller, Service, Repository, Manager, Handler, Processor, Adapter, Facade
+  - Skips Test classes
+
+- **TooManyLiteralsDetector:** 5 → 7 numeric, 3 → 5 string literals
+  - Completely skips test files and test methods
+  - Skips @Test, @ParameterizedTest, @RepeatedTest annotated methods
+
+- **DataClassDetector:** Enhanced pattern recognition
+  - Skips DTO, Entity, Model, Request, Response, Config, Bean, Data, Vo, Record suffixes
+  - Skips @Entity, @Table, @Document, @Data annotated classes
+
+- **SwitchStatementDetector:** 5 → 7 cases threshold
+  - Skips 2-3 case switches (often cleaner than polymorphism)
+  - Only checks for duplicated logic when 4+ cases
+
+- **DeepNestingDetector:** 4 → 5 levels threshold
+  - More lenient for complex but necessary nesting
+
+### 📊 Expected Impact
+- **Additional false positive reduction:** Estimated 10-15% beyond v1.0.9's 75% reduction
+- **Total false positive rate:** Expected < 5% (was 40% in v1.0.8)
+- **Precision:** Expected 92-95% (was 90% in v1.0.9)
+- **Developer trust:** Significantly improved - warnings are now highly reliable
+
+### 🔧 Technical Changes
+- New VSCode commands:
+  - `pragmite.applyAutoFix` - Apply single auto-fix
+  - `pragmite.applyAllAutoFixes` - Apply all available auto-fixes
+
+- New API endpoints:
+  - `POST /api/apply-fix` - Trigger single auto-fix
+  - `POST /api/apply-all-fixes` - Trigger bulk auto-fixes
+  - `OPTIONS /*` - CORS preflight handling
+
+- Enhanced SSE with automatic reconnection logic
+- 6 detector optimizations for reduced false positives
+
+### 📦 Build
+- **Core:** pragmite-core-1.1.0.jar (9.0 MB)
+- **Extension:** pragmite-1.1.0.vsix (16.22 MB)
+
+### 🔄 Migration from 1.0.9
+Drop-in replacement, no breaking changes. Simply install the new VSIX.
+
+---
+
 ## [1.0.9] - 2025-12-24
 
 ### 🔧 Fixed

@@ -11,12 +11,12 @@ import java.util.List;
 
 /**
  * Büyük sınıf kokusu dedektörü.
- * Varsayılan eşik: 300 satır
+ * Varsayılan eşik: 400 satır (IMPROVED: Controller/Service sınıfları için 400'e kadar normal)
  */
 public class LargeClassDetector implements SmellDetector {
 
-    private static final int DEFAULT_LINE_THRESHOLD = 300;
-    private static final int DEFAULT_METHOD_THRESHOLD = 20;
+    private static final int DEFAULT_LINE_THRESHOLD = 400;  // IMPROVED: 300 → 400
+    private static final int DEFAULT_METHOD_THRESHOLD = 25;  // IMPROVED: 20 → 25
 
     private final int lineThreshold;
     private final int methodThreshold;
@@ -40,6 +40,21 @@ public class LargeClassDetector implements SmellDetector {
                 super.visit(cid, arg);
 
                 if (cid.isInterface()) return; // Interface'leri atla
+
+                // Skip common patterns that legitimately can be large
+                String className = cid.getNameAsString();
+                if (className.endsWith("Controller") ||
+                    className.endsWith("Service") ||
+                    className.endsWith("Repository") ||
+                    className.endsWith("Manager") ||
+                    className.endsWith("Handler") ||
+                    className.endsWith("Processor") ||
+                    className.endsWith("Adapter") ||
+                    className.endsWith("Facade") ||
+                    className.endsWith("Test") ||
+                    className.contains("Test")) {
+                    return;  // These patterns can legitimately be large
+                }
 
                 int startLine = cid.getBegin().map(pos -> pos.line).orElse(0);
                 int endLine = cid.getEnd().map(pos -> pos.line).orElse(0);

@@ -43,6 +43,26 @@ public class DataClassDetector implements SmellDetector {
 
                 if (cid.isInterface()) return;
 
+                // Skip DTO, Entity, Model, Record patterns - these are SUPPOSED to be data classes
+                String className = cid.getNameAsString();
+                if (className.endsWith("DTO") ||
+                    className.endsWith("Entity") ||
+                    className.endsWith("Model") ||
+                    className.endsWith("Request") ||
+                    className.endsWith("Response") ||
+                    className.endsWith("Config") ||
+                    className.endsWith("Bean") ||
+                    className.endsWith("Data") ||
+                    className.endsWith("Vo") ||
+                    className.endsWith("Record") ||
+                    cid.getAnnotations().stream().anyMatch(a ->
+                        a.getNameAsString().contains("Entity") ||
+                        a.getNameAsString().contains("Table") ||
+                        a.getNameAsString().contains("Document") ||
+                        a.getNameAsString().contains("Data"))) {
+                    return;  // DTOs and data objects are MEANT to be anemic
+                }
+
                 // Alan sayısı
                 List<FieldDeclaration> fields = cid.getFields();
                 int fieldCount = fields.stream()

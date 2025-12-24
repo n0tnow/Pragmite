@@ -12,11 +12,11 @@ import java.util.List;
 
 /**
  * Derin iç içe kod bloğu dedektörü.
- * Varsayılan eşik: 4 seviye
+ * Varsayılan eşik: 5 seviye (IMPROVED: 4 → 5, sometimes 4 levels is necessary)
  */
 public class DeepNestingDetector implements SmellDetector {
 
-    private static final int DEFAULT_THRESHOLD = 4;
+    private static final int DEFAULT_THRESHOLD = 5;  // IMPROVED: 4 → 5
     private final int threshold;
 
     public DeepNestingDetector() {
