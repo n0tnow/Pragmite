@@ -79,6 +79,74 @@ export class PragmiteWebServer {
             return;
         }
 
+        if (url === '/api/apply-fix' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            req.on('end', async () => {
+                try {
+                    const suggestion = JSON.parse(body);
+                    const vscode = await import('vscode');
+                    await vscode.commands.executeCommand('pragmite.applyAutoFix', suggestion);
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    });
+                    res.end(JSON.stringify({ success: true }));
+                } catch (error) {
+                    res.writeHead(500, {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    });
+                    res.end(JSON.stringify({
+                        success: false,
+                        error: error instanceof Error ? error.message : String(error)
+                    }));
+                }
+            });
+            return;
+        }
+
+        if (url === '/api/apply-all-fixes' && req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            req.on('end', async () => {
+                try {
+                    const data = JSON.parse(body);
+                    const vscode = await import('vscode');
+                    await vscode.commands.executeCommand('pragmite.applyAllAutoFixes', data.suggestions);
+                    res.writeHead(200, {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    });
+                    res.end(JSON.stringify({ success: true, successCount: data.suggestions.length, failCount: 0 }));
+                } catch (error) {
+                    res.writeHead(500, {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    });
+                    res.end(JSON.stringify({
+                        success: false,
+                        error: error instanceof Error ? error.message : String(error)
+                    }));
+                }
+            });
+            return;
+        }
+
+        if (req.method === 'OPTIONS') {
+            res.writeHead(200, {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            });
+            res.end();
+            return;
+        }
+
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
     }
@@ -1414,6 +1482,11 @@ export class PragmiteWebServer {
         initTheme();
 
         function setupSSE() {
+            // Close existing connection if any
+            if (eventSource) {
+                eventSource.close();
+            }
+
             eventSource = new EventSource('/api/events');
 
             eventSource.onmessage = (event) => {
@@ -1429,6 +1502,13 @@ export class PragmiteWebServer {
 
             eventSource.onerror = (error) => {
                 console.error('SSE connection error:', error);
+                eventSource.close();
+
+                // Reconnect after 2 seconds
+                setTimeout(() => {
+                    console.log('🔄 Attempting to reconnect SSE...');
+                    setupSSE();
+                }, 2000);
             };
         }
 
@@ -1584,14 +1664,44 @@ export class PragmiteWebServer {
                         </div>
                         <div class="quality-metric-value">\${Math.round(data.qualityScore.perfScore || 0)}</div>
                     </div>
+                    <div style="margin-top: 16px; padding: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #3b82f6;">📐 Calculation Formula:</div>
+                        <div style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8; color: #94a3b8;">
+                            <div><strong>Overall Score</strong> = (DRY × 0.30) + (Orthogonality × 0.30) + (Correctness × 0.25) + (Performance × 0.15)</div>
+                            <div style="margin-top: 8px; opacity: 0.8;">
+                                <strong>Current:</strong> (\${Math.round(data.qualityScore.dryScore)} × 0.30) + (\${Math.round(data.qualityScore.orthogonalityScore)} × 0.30) + (\${Math.round(data.qualityScore.correctnessScore)} × 0.25) + (\${Math.round(data.qualityScore.perfScore)} × 0.15) = <strong>\${data.qualityScore.overallScore.toFixed(1)}</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 \` : ''}
 
                 \${(data.suggestions && data.suggestions.length > 0) ? \`
                 <div class="suggestions-section glass">
-                    <div class="suggestions-title">
-                        <span>💡</span>
-                        <span>Improvement Suggestions</span>
+                    <div class="suggestions-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>💡</span>
+                            <span>Improvement Suggestions</span>
+                        </div>
+                        <button
+                            onclick="applyAllAutoFixes()"
+                            style="
+                                padding: 8px 16px;
+                                background: linear-gradient(135deg, #00c864 0%, #00a854 100%);
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                font-size: 13px;
+                                transition: all 0.2s;
+                                box-shadow: 0 4px 12px rgba(0, 200, 100, 0.3);
+                            "
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 200, 100, 0.4)';"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 200, 100, 0.3)';"
+                        >
+                            🔧 Fix All Available
+                        </button>
                     </div>
                     \${data.suggestions.map((suggestion, idx) => \`
                         <div class="suggestion-item" onclick="showSuggestionModal(\${idx})">
@@ -1661,6 +1771,21 @@ export class PragmiteWebServer {
                         <span><strong>CBO:</strong> Coupling Between Objects</span>
                         <span><strong>RFC:</strong> Response For a Class</span>
                         <span><strong>LCOM:</strong> Lack of Cohesion in Methods</span>
+                    </div>
+                    <div style="margin-top: 20px; padding: 20px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
+                        <div style="font-weight: 600; margin-bottom: 16px; color: #3b82f6; font-size: 16px;">📐 CK Metrics Formulas</div>
+                        <div style="font-family: 'Courier New', monospace; font-size: 12px; line-height: 2; color: #94a3b8;">
+                            <div><strong>WMC</strong> = Σ CC(methods) → Sum of cyclomatic complexity of all methods</div>
+                            <div><strong>DIT</strong> = max depth from class to root → Inheritance tree depth</div>
+                            <div><strong>NOC</strong> = |direct subclasses| → Number of immediate children</div>
+                            <div><strong>CBO</strong> = |coupled classes| → Number of classes this class depends on</div>
+                            <div><strong>RFC</strong> = |methods| + |external calls| → Response set size</div>
+                            <div><strong>LCOM</strong> = max(P - Q, 0) → P: method pairs sharing no attributes, Q: sharing attributes</div>
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(59, 130, 246, 0.2);">
+                                <div style="color: #ffa500;"><strong>⚠️ Warning Thresholds:</strong></div>
+                                <div style="margin-top: 4px;">WMC > 30 | CBO > 10 | LCOM > 50 → Potential God Class</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 \` : ''}
@@ -2083,19 +2208,80 @@ export class PragmiteWebServer {
             button.disabled = true;
             button.style.opacity = '0.7';
 
-            // TODO: Integrate with VSCode command to apply refactoring
-            // For now, show a message
-            setTimeout(() => {
-                alert('Auto-fix feature coming soon!\\n\\nThis will automatically apply the refactoring to your code.\\n\\nSuggestion: ' + suggestion.title);
+            // Send message to VSCode to apply the fix
+            fetch('/api/apply-fix', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(suggestion)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '✅ Applied!';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                    }, 2000);
+                } else {
+                    alert('Failed to apply auto-fix: ' + (data.error || 'Unknown error'));
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                console.error('Auto-fix error:', error);
+                alert('Failed to apply auto-fix. Check VSCode for details.');
                 button.innerHTML = originalText;
                 button.disabled = false;
                 button.style.opacity = '1';
-            }, 500);
+            });
+        }
+
+        function applyAllAutoFixes() {
+            if (!currentData || !currentData.suggestions) {
+                return;
+            }
+
+            const autoFixableSuggestions = currentData.suggestions.filter(s => s.autoFixAvailable && s.afterCode);
+
+            if (autoFixableSuggestions.length === 0) {
+                alert('No automatic fixes available. All suggestions require manual intervention.');
+                return;
+            }
+
+            if (!confirm(\`Apply \${autoFixableSuggestions.length} auto-fix(es)?\`)) {
+                return;
+            }
+
+            // Send bulk fix request
+            fetch('/api/apply-all-fixes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ suggestions: autoFixableSuggestions })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(\`✅ Applied \${data.successCount} auto-fix(es) successfully\` + (data.failCount > 0 ? \`. \${data.failCount} failed.\` : ''));
+                } else {
+                    alert('Failed to apply auto-fixes: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Bulk auto-fix error:', error);
+                alert('Failed to apply auto-fixes. Check VSCode for details.');
+            });
         }
 
         setupSSE();
         loadData();
-        setInterval(loadData, 3000);
+        // Auto-refresh is now handled by SSE, no need for polling interval
     </script>
 </body>
 </html>`;

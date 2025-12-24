@@ -121,6 +121,14 @@ function activate(context) {
         const message = smells.map((s, i) => `${i + 1}. ${s.message}`).join('\n');
         vscode.window.showWarningMessage(`Code Smells Detected:\n${message}`);
     }));
+    // Register auto-fix command
+    context.subscriptions.push(vscode.commands.registerCommand('pragmite.applyAutoFix', async (suggestion) => {
+        await applyAutoFix(suggestion);
+    }));
+    // Register bulk auto-fix command
+    context.subscriptions.push(vscode.commands.registerCommand('pragmite.applyAllAutoFixes', async (suggestions) => {
+        await applyAllAutoFixes(suggestions);
+    }));
     // Auto-analyze on save if enabled
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(async (document) => {
         const config = vscode.workspace.getConfiguration('pragmite');
@@ -272,6 +280,87 @@ async function showQualityReport() {
     panel.webview.html = (0, reportGenerator_1.generateReportHtml)(result);
 }
 // HTML report generator moved to reportGenerator.ts
+/**
+ * Apply auto-fix for a single suggestion
+ */
+async function applyAutoFix(suggestion) {
+    try {
+        if (!suggestion || !suggestion.filePath) {
+            vscode.window.showErrorMessage('Invalid suggestion data');
+            return;
+        }
+        const uri = vscode.Uri.file(suggestion.filePath);
+        const document = await vscode.workspace.openTextDocument(uri);
+        const editor = await vscode.window.showTextDocument(document);
+        // Apply the fix based on suggestion type
+        const edit = new vscode.WorkspaceEdit();
+        if (suggestion.afterCode && suggestion.startLine && suggestion.endLine) {
+            // Replace code block
+            const startPos = new vscode.Position(suggestion.startLine - 1, 0);
+            const endPos = new vscode.Position(suggestion.endLine, 0);
+            const range = new vscode.Range(startPos, endPos);
+            edit.replace(uri, range, suggestion.afterCode + '\n');
+            await vscode.workspace.applyEdit(edit);
+            await document.save();
+            vscode.window.showInformationMessage(`✅ Auto-fix applied: ${suggestion.title}`);
+        }
+        else {
+            // If no code provided, show suggestion for manual fix
+            vscode.window.showInformationMessage(`Manual refactoring required: ${suggestion.title}`, 'View Details').then(selection => {
+                if (selection === 'View Details') {
+                    // Navigate to the location
+                    const startLine = suggestion.startLine ? suggestion.startLine - 1 : 0;
+                    const position = new vscode.Position(startLine, 0);
+                    editor.selection = new vscode.Selection(position, position);
+                    editor.revealRange(new vscode.Range(position, position));
+                }
+            });
+        }
+    }
+    catch (error) {
+        vscode.window.showErrorMessage(`Failed to apply auto-fix: ${error}`);
+        console.error('Auto-fix error:', error);
+    }
+}
+/**
+ * Apply all auto-fixes that are available
+ */
+async function applyAllAutoFixes(suggestions) {
+    if (!suggestions || suggestions.length === 0) {
+        vscode.window.showInformationMessage('No auto-fixes available');
+        return;
+    }
+    const autoFixableSuggestions = suggestions.filter(s => s.autoFixAvailable && s.afterCode);
+    if (autoFixableSuggestions.length === 0) {
+        vscode.window.showInformationMessage('No automatic fixes available. All suggestions require manual intervention.');
+        return;
+    }
+    const result = await vscode.window.showWarningMessage(`Apply ${autoFixableSuggestions.length} auto-fix(es)?`, 'Yes', 'No');
+    if (result !== 'Yes') {
+        return;
+    }
+    let successCount = 0;
+    let failCount = 0;
+    for (const suggestion of autoFixableSuggestions) {
+        try {
+            await applyAutoFix(suggestion);
+            successCount++;
+        }
+        catch (error) {
+            failCount++;
+            console.error('Failed to apply fix:', error);
+        }
+    }
+    if (successCount > 0) {
+        vscode.window.showInformationMessage(`✅ Applied ${successCount} auto-fix(es) successfully` +
+            (failCount > 0 ? `. ${failCount} failed.` : ''));
+    }
+    else {
+        vscode.window.showErrorMessage(`❌ All auto-fixes failed`);
+    }
+    // Re-analyze workspace after bulk fixes
+    await analyzeWorkspace();
+}
 function deactivate() {
     if (webServer) {
         webServer.stop();
