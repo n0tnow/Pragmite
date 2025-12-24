@@ -1,0 +1,93 @@
+# Pragmite Configuration Template
+# Copy this file to .pragmite.properties in your project root and customize
+
+# ============================================================================
+# METHOD THRESHOLDS
+# ============================================================================
+
+# Maximum lines in a method before flagging as "Long Method"
+method.longMethod.threshold=30
+
+# Maximum cyclomatic complexity before flagging
+method.cyclomaticComplexity.threshold=10
+
+# Maximum nesting depth before flagging as "Deeply Nested Code"
+method.nestingDepth.threshold=4
+
+# Maximum parameter count before flagging as "Long Parameter List"
+method.parameterCount.threshold=6
+
+# ============================================================================
+# CLASS THRESHOLDS
+# ============================================================================
+
+# God Class detection - minimum method count
+class.godClass.methodCount=20
+
+# God Class detection - minimum field count
+class.godClass.fieldCount=15
+
+# Large Class detection - maximum line count
+class.largeClass.lineCount=300
+
+# Lazy Class detection - maximum line count
+class.lazyClass.lineCount=50
+
+# Lazy Class detection - maximum non-trivial method count
+class.lazyClass.methodCount=2
+
+# ============================================================================
+# CODE QUALITY THRESHOLDS
+# ============================================================================
+
+# Duplicate Code - minimum lines to consider as duplicate
+quality.duplicateCode.minLines=6
+
+# Duplicate Code - similarity threshold (0.0-1.0, 0.85 = 85% similar)
+quality.duplicateCode.similarity=0.85
+
+# Data Clumps - minimum parameters to form a clump
+quality.dataClumps.minParams=3
+
+# Data Clumps - minimum occurrences across methods
+quality.dataClumps.minOccurrences=2
+
+# Feature Envy - threshold for external dependency ratio (0.0-1.0)
+quality.featureEnvy.threshold=0.60
+
+# Inappropriate Intimacy - minimum intimate interactions
+quality.inappropriateIntimacy.threshold=8
+
+# ============================================================================
+# PERFORMANCE SETTINGS
+# ============================================================================
+
+# Enable parallel analysis for large projects
+performance.parallel.enabled=true
+
+# Number of parallel threads (default: CPU cores)
+performance.parallel.threads=4
+
+# ============================================================================
+# ANALYSIS SETTINGS
+# ============================================================================
+
+# Exclude patterns (comma-separated glob patterns)
+analysis.exclude=**/target/**,**/build/**,**/.git/**,**/node_modules/**
+
+# Disabled detectors (comma-separated detector names)
+# Available detectors:
+#   LongMethodDetector, GodClassDetector, MagicNumberDetector,
+#   DuplicateCodeDetector, DataClumpsDetector, FeatureEnvyDetector,
+#   InappropriateIntimacyDetector, LazyClassDetector, SpeculativeGeneralityDetector
+detectors.disabled=
+
+# ============================================================================
+# SCORING WEIGHTS
+# ============================================================================
+
+# Pragmatic Programmer principle weights (must sum to 1.0)
+scoring.weight.dry=0.30
+scoring.weight.orthogonality=0.25
+scoring.weight.correctness=0.30
+scoring.weight.performance=0.15

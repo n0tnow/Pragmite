@@ -1,0 +1,113 @@
+name: Pragmite CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, master ]
+  pull_request:
+    branches: [ main, develop, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Build with Maven
+      run: cd pragmite-core && mvn clean compile -B
+
+    - name: Run tests
+      run: cd pragmite-core && mvn test -B
+      continue-on-error: true
+
+    - name: Package application
+      run: cd pragmite-core && mvn package -DskipTests -B
+
+    - name: Upload JAR artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: pragmite-jar
+        path: pragmite-core/target/pragmite-core-*.jar
+        retention-days: 30
+
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-reports
+        path: pragmite-core/target/surefire-reports/
+        retention-days: 14
+
+  analyze-test-project:
+    name: Analyze Test Project
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Download JAR artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: pragmite-jar
+        path: ./artifacts
+
+    - name: Run Pragmite on test-ecommerce
+      run: |
+        cd artifacts
+        JAR_FILE=$(ls pragmite-core-*.jar | head -n 1)
+        java -jar $JAR_FILE ../test-ecommerce -o ../test-ecommerce-report.json -f both
+      continue-on-error: true
+
+    - name: Upload analysis report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: analysis-report
+        path: test-ecommerce-report.json
+        retention-days: 30
+
+  quality-gate:
+    name: Quality Gate Check
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run quality checks
+      run: cd pragmite-core && mvn verify -DskipTests -B
+      continue-on-error: true

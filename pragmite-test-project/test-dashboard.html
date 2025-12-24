@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dashboard Test</title></head>
+<body>
+<h1>Testing API</h1>
+<pre id="result">Loading...</pre>
+<script>
+fetch('http://localhost:3745/api/analysis')
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+        document.getElementById('result').textContent = 'Error: ' + err;
+    });
+</script>
+</body>
+</html>

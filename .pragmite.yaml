@@ -1,0 +1,49 @@
+# Pragmite Configuration File
+# Place this file in your project root or user home directory
+
+# Detection Thresholds
+thresholds:
+  long_method: 30              # Lines of code in a method
+  long_parameter_list: 4       # Number of parameters
+  complexity: 10               # Cyclomatic complexity
+  nesting_depth: 4             # Maximum nesting level
+  large_class: 500             # Lines in a class
+  god_class_methods: 20        # Methods in a class
+  long_line: 120               # Characters per line
+  magic_numbers: 5             # Numeric literals in a method
+  string_literals: 3           # String literals in a method
+
+# Refactoring Settings
+refactoring:
+  auto_apply: false            # Automatically apply refactorings
+  create_backups: true         # Create backups before refactoring
+  backup_retention: 10         # Number of backups to keep
+  run_tests: true              # Run tests after refactoring
+  rollback_on_failure: true    # Rollback if tests fail
+
+# Performance Settings
+performance:
+  enable_caching: true         # Cache analysis results
+  enable_parallel: true        # Use parallel processing
+  thread_count: 4              # Number of threads (0 = auto)
+  enable_profiling: false      # Enable JFR profiling
+
+# Output Settings
+output:
+  format: json                 # Output format: json, xml, html
+  verbose: false               # Verbose logging
+  generate_reports: true       # Generate HTML reports
+
+# Exclusions
+exclusions:
+  paths:
+    - target
+    - build
+    - node_modules
+    - .git
+    - .idea
+    - .vscode
+  files:
+    - "*Test.java"
+    - "*Tests.java"
+    - "*IT.java"

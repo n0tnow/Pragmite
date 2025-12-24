@@ -1,0 +1,227 @@
+package com.pragmite.benchmark;
+
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.pragmite.model.ComplexityInfo;
+import com.pragmite.model.MethodInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Generates JMH benchmark templates for high-complexity methods.
+ * Identifies hotspot candidates and creates ready-to-run benchmark classes.
+ *
+ * Usage:
+ * <pre>
+ * BenchmarkGenerator generator = new BenchmarkGenerator();
+ * List<BenchmarkTemplate> templates = generator.generateBenchmarks(complexityInfos);
+ * generator.writeBenchmarksToFile(templates, outputDir);
+ * </pre>
+ */
+public class BenchmarkGenerator {
+    private static final Logger logger = LoggerFactory.getLogger(BenchmarkGenerator.class);
+
+    /**
+     * Complexity threshold for benchmark generation.
+     * Methods with cyclomatic complexity >= this value will get benchmarks.
+     */
+    private int complexityThreshold = 10;
+
+    /**
+     * Big-O patterns that indicate performance-critical code.
+     */
+    private static final String[] CRITICAL_BIG_O = {"O(n²)", "O(n³)", "O(2^n)", "O(n log n)"};
+
+    public BenchmarkGenerator() {}
+
+    public BenchmarkGenerator(int complexityThreshold) {
+        this.complexityThreshold = complexityThreshold;
+    }
+
+    /**
+     * Generates JMH benchmark templates for high-complexity methods.
+     */
+    public List<BenchmarkTemplate> generateBenchmarks(List<ComplexityInfo> complexities) {
+        List<BenchmarkTemplate> templates = new ArrayList<>();
+
+        for (ComplexityInfo complexity : complexities) {
+            if (shouldBenchmark(complexity)) {
+                BenchmarkTemplate template = createBenchmarkTemplate(complexity);
+                templates.add(template);
+                logger.info("Generated benchmark for: {} (Big-O: {})",
+                    complexity.getMethodName(),
+                    complexity.getTimeComplexity());
+            }
+        }
+
+        logger.info("Generated {} benchmark templates", templates.size());
+        return templates;
+    }
+
+    /**
+     * Determines if a method should be benchmarked based on complexity metrics.
+     */
+    private boolean shouldBenchmark(ComplexityInfo complexity) {
+        if (complexity.getTimeComplexity() == null) {
+            return false;
+        }
+
+        // Critical Big-O complexity
+        String bigO = complexity.getTimeComplexity().toString();
+        for (String critical : CRITICAL_BIG_O) {
+            if (bigO.contains(critical)) {
+                return true;
+            }
+        }
+
+        // Also benchmark if nested loop depth is high
+        if (complexity.getNestedLoopDepth() >= 2) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Creates a JMH benchmark template for a method.
+     */
+    private BenchmarkTemplate createBenchmarkTemplate(ComplexityInfo complexity) {
+        String className = extractClassName(complexity.getFilePath());
+        String methodName = complexity.getMethodName();
+        String packageName = extractPackageName(complexity.getFilePath());
+
+        BenchmarkTemplate template = new BenchmarkTemplate();
+        template.setOriginalClass(className);
+        template.setOriginalMethod(methodName);
+        template.setOriginalPackage(packageName);
+        template.setComplexityInfo(complexity);
+        template.setBenchmarkClassName(className + "_" + methodName + "_Benchmark");
+
+        // Generate JMH benchmark code
+        String benchmarkCode = generateBenchmarkCode(template);
+        template.setBenchmarkCode(benchmarkCode);
+
+        return template;
+    }
+
+    /**
+     * Generates the actual JMH benchmark Java code.
+     */
+    private String generateBenchmarkCode(BenchmarkTemplate template) {
+        String benchmarkPackage = template.getOriginalPackage() + ".benchmark";
+        String benchmarkClass = template.getBenchmarkClassName();
+        String originalClass = template.getOriginalClass();
+        String originalMethod = template.getOriginalMethod();
+
+        StringBuilder code = new StringBuilder();
+
+        code.append("package ").append(benchmarkPackage).append(";\n\n");
+
+        // Imports
+        code.append("import org.openjdk.jmh.annotations.*;\n");
+        code.append("import org.openjdk.jmh.infra.Blackhole;\n");
+        code.append("import ").append(template.getOriginalPackage()).append(".").append(originalClass).append(";\n");
+        code.append("import java.util.concurrent.TimeUnit;\n\n");
+
+        // JMH annotations and benchmark class
+        code.append("/**\n");
+        code.append(" * JMH Benchmark for ").append(originalClass).append(".").append(originalMethod).append("()\n");
+        code.append(" * Generated by Pragmite\n");
+        code.append(" * \n");
+        code.append(" * Big-O: ").append(template.getComplexityInfo().getTimeComplexity()).append("\n");
+        code.append(" * Reason: ").append(template.getComplexityInfo().getReason() != null ? template.getComplexityInfo().getReason() : "N/A").append("\n");
+        code.append(" */\n");
+        code.append("@BenchmarkMode(Mode.AverageTime)\n");
+        code.append("@OutputTimeUnit(TimeUnit.MICROSECONDS)\n");
+        code.append("@State(Scope.Thread)\n");
+        code.append("@Fork(value = 2, warmups = 1)\n");
+        code.append("@Warmup(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)\n");
+        code.append("@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)\n");
+        code.append("public class ").append(benchmarkClass).append(" {\n\n");
+
+        // State variables
+        code.append("    private ").append(originalClass).append(" instance;\n\n");
+
+        // Setup method
+        code.append("    @Setup(Level.Trial)\n");
+        code.append("    public void setup() {\n");
+        code.append("        instance = new ").append(originalClass).append("();\n");
+        code.append("        // TODO: Initialize test data\n");
+        code.append("    }\n\n");
+
+        // Benchmark method
+        code.append("    @Benchmark\n");
+        code.append("    public void benchmark_").append(originalMethod).append("(Blackhole blackhole) {\n");
+        code.append("        // TODO: Call the method with appropriate test parameters\n");
+        code.append("        // Example:\n");
+        code.append("        // Object result = instance.").append(originalMethod).append("(/* params */);\n");
+        code.append("        // blackhole.consume(result);\n");
+        code.append("    }\n\n");
+
+        code.append("}\n");
+
+        return code.toString();
+    }
+
+    /**
+     * Writes benchmark templates to Java files.
+     */
+    public void writeBenchmarksToFile(List<BenchmarkTemplate> templates, String outputDir) throws IOException {
+        Path baseDir = Paths.get(outputDir);
+        Files.createDirectories(baseDir);
+
+        for (BenchmarkTemplate template : templates) {
+            String packagePath = template.getOriginalPackage().replace('.', '/') + "/benchmark";
+            Path packageDir = baseDir.resolve(packagePath);
+            Files.createDirectories(packageDir);
+
+            Path benchmarkFile = packageDir.resolve(template.getBenchmarkClassName() + ".java");
+            Files.writeString(benchmarkFile, template.getBenchmarkCode());
+
+            logger.info("Written benchmark file: {}", benchmarkFile);
+        }
+
+        logger.info("All {} benchmark files written to: {}", templates.size(), outputDir);
+    }
+
+    /**
+     * Extracts class name from file path.
+     */
+    private String extractClassName(String filePath) {
+        String fileName = Paths.get(filePath).getFileName().toString();
+        return fileName.replace(".java", "");
+    }
+
+    /**
+     * Extracts package name from file path.
+     * Assumes standard Maven/Gradle directory structure.
+     */
+    private String extractPackageName(String filePath) {
+        // Extract package from file path: src/main/java/com/pragmite/... -> com.pragmite...
+        String normalized = filePath.replace('\\', '/');
+
+        int javaIndex = normalized.indexOf("src/main/java/");
+        if (javaIndex == -1) {
+            javaIndex = normalized.indexOf("src/test/java/");
+        }
+
+        if (javaIndex != -1) {
+            String afterJava = normalized.substring(javaIndex + "src/main/java/".length());
+            int lastSlash = afterJava.lastIndexOf('/');
+            if (lastSlash > 0) {
+                String packagePath = afterJava.substring(0, lastSlash);
+                return packagePath.replace('/', '.');
+            }
+        }
+
+        return "com.pragmite"; // Fallback
+    }
+}

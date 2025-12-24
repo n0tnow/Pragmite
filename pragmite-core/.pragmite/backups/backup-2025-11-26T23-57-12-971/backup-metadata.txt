@@ -1,0 +1,4 @@
+Backup created: 2025-11-26T23:57:12.976322700
+Refactoring plan: RefactoringPlan[2 actions, 1 files]
+Affected files:
+  - C:\Users\bkaya\AppData\Local\Temp\junit8350209291476239023\Test.java

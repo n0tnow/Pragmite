@@ -1,0 +1,36 @@
+# Pragmite Dockerignore
+
+# Target directory (build artifacts)
+target/
+build/
+
+# Logs
+logs/
+*.log
+
+# JFR recordings
+*.jfr
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Git
+.git/
+.gitignore
+
+# Test outputs
+surefire-reports/
+
+# Analysis outputs
+*.json
+!pom.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak

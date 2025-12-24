@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Pragmite Analysis Service
+  pragmite:
+    build:
+      context: ./pragmite-core
+      dockerfile: Dockerfile
+    image: pragmite:latest
+    container_name: pragmite-analyzer
+    volumes:
+      # Mount test project
+      - ./test-ecommerce:/pragmite/projects/test-ecommerce:ro
+      # Mount reports output directory
+      - ./reports:/pragmite/reports
+      # Mount configuration
+      - ./.pragmite.yaml:/pragmite/config/.pragmite.yaml:ro
+      # Mount logs
+      - ./logs:/pragmite/logs
+    environment:
+      - JAVA_OPTS=-Xmx2g -Xms512m
+    command: >
+      /pragmite/projects/test-ecommerce
+      -o /pragmite/reports/test-ecommerce-report.json
+      -f both
+      --verbose
+
+  # Pragmite - Analyze custom project
+  pragmite-custom:
+    build:
+      context: ./pragmite-core
+      dockerfile: Dockerfile
+    image: pragmite:latest
+    container_name: pragmite-custom
+    volumes:
+      # Mount your project directory here
+      - ${PROJECT_PATH:-./test-ecommerce}:/pragmite/projects:ro
+      - ./reports:/pragmite/reports
+      - ./.pragmite.yaml:/pragmite/config/.pragmite.yaml:ro
+    environment:
+      - JAVA_OPTS=-Xmx4g -Xms1g
+    command: >
+      /pragmite/projects
+      -o /pragmite/reports/analysis-report.json
+      -f both
+    profiles:
+      - custom
+
+# Usage:
+# 1. Build and run default analysis:
+#    docker-compose up pragmite
+#
+# 2. Analyze custom project:
+#    PROJECT_PATH=/path/to/your/project docker-compose --profile custom up pragmite-custom
+#
+# 3. Build only:
+#    docker-compose build
+#
+# 4. View logs:
+#    docker-compose logs -f pragmite
