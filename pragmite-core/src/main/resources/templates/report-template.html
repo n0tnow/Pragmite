@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pragmite Quality Report - {{PROJECT_NAME}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f9fafb;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .score-excellent { color: #10b981; }
+        .score-good { color: #3b82f6; }
+        .score-warning { color: #f59e0b; }
+        .score-poor { color: #ef4444; }
+
+        .section {
+            padding: 40px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .severity-critical { color: #dc2626; font-weight: bold; }
+        .severity-high { color: #ea580c; }
+        .severity-medium { color: #f59e0b; }
+        .severity-low { color: #3b82f6; }
+        .severity-info { color: #6b7280; }
+
+        .footer {
+            padding: 30px 40px;
+            background: #f9fafb;
+            text-align: center;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+        .badge-high { background: #ffedd5; color: #9a3412; }
+        .badge-medium { background: #fef3c7; color: #92400e; }
+        .badge-low { background: #dbeafe; color: #1e40af; }
+        .badge-info { background: #f3f4f6; color: #374151; }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-item {
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .metric-item h4 {
+            font-size: 0.85em;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .metric-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Pragmite Quality Report</h1>
+            <p>Project: <strong>{{PROJECT_NAME}}</strong></p>
+            <p>Generated: {{TIMESTAMP}}</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Overall Quality Score</h3>
+                <div class="value {{QUALITY_SCORE_CLASS}}">{{QUALITY_SCORE}}/100</div>
+                <p>{{QUALITY_RATING}}</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Issues</h3>
+                <div class="value">{{TOTAL_ISSUES}}</div>
+                <p>{{CRITICAL_COUNT}} critical</p>
+            </div>
+            <div class="summary-card">
+                <h3>Files Analyzed</h3>
+                <div class="value">{{FILES_ANALYZED}}</div>
+                <p>{{LINES_OF_CODE}} lines of code</p>
+            </div>
+            <div class="summary-card">
+                <h3>Analysis Time</h3>
+                <div class="value">{{ANALYSIS_TIME}}s</div>
+                <p>{{FILES_PER_SECOND}} files/sec</p>
+            </div>
+        </div>
+
+        <!-- Quality Breakdown -->
+        <div class="section">
+            <h2>Quality Score Breakdown</h2>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <h4>DRY (Don't Repeat Yourself)</h4>
+                    <div class="value">{{DRY_SCORE}}/100</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Orthogonality</h4>
+                    <div class="value">{{ORTHOGONALITY_SCORE}}/100</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Correctness</h4>
+                    <div class="value">{{CORRECTNESS_SCORE}}/100</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Performance</h4>
+                    <div class="value">{{PERFORMANCE_SCORE}}/100</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="qualityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Issues by Severity -->
+        <div class="section">
+            <h2>Issues by Severity</h2>
+            <div class="chart-container">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Issues -->
+        <div class="section">
+            <h2>Top Issues</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Type</th>
+                        <th>File</th>
+                        <th>Line</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ISSUES_TABLE}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Code Metrics -->
+        <div class="section">
+            <h2>Code Metrics</h2>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <h4>Avg Cyclomatic Complexity</h4>
+                    <div class="value">{{AVG_COMPLEXITY}}</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Max Complexity</h4>
+                    <div class="value">{{MAX_COMPLEXITY}}</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Avg Method Length</h4>
+                    <div class="value">{{AVG_METHOD_LENGTH}}</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Code Duplication</h4>
+                    <div class="value">{{DUPLICATION_PERCENTAGE}}%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Pragmite</strong> - Java Code Quality Analysis Tool</p>
+            <p>Version 1.2.0 | Generated with ❤️ by Pragmite</p>
+            <p>https://github.com/n0tnow/Pragmite</p>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Quality Score Breakdown Chart
+        const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+        new Chart(qualityCtx, {
+            type: 'radar',
+            data: {
+                labels: ['DRY', 'Orthogonality', 'Correctness', 'Performance'],
+                datasets: [{
+                    label: 'Quality Scores',
+                    data: [{{DRY_SCORE}}, {{ORTHOGONALITY_SCORE}}, {{CORRECTNESS_SCORE}}, {{PERFORMANCE_SCORE}}],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Severity Distribution Chart
+        const severityCtx = document.getElementById('severityChart').getContext('2d');
+        new Chart(severityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
+                datasets: [{
+                    data: [{{CRITICAL_COUNT}}, {{HIGH_COUNT}}, {{MEDIUM_COUNT}}, {{LOW_COUNT}}, {{INFO_COUNT}}],
+                    backgroundColor: [
+                        '#dc2626',
+                        '#ea580c',
+                        '#f59e0b',
+                        '#3b82f6',
+                        '#6b7280'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

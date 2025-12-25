@@ -39,7 +39,7 @@ const path = __importStar(require("path"));
 const child_process = __importStar(require("child_process"));
 class PragmiteService {
     constructor(context) {
-        this.jarPath = path.join(context.extensionPath, 'lib', 'pragmite-core-1.0.5.jar');
+        this.jarPath = path.join(context.extensionPath, 'lib', 'pragmite-core-1.2.0.jar');
         const config = vscode.workspace.getConfiguration('pragmite');
         this.javaPath = config.get('javaPath', 'java');
         this.outputChannel = vscode.window.createOutputChannel('Pragmite');

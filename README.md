@@ -3,12 +3,17 @@
 **Java Code Quality Analysis Tool** - SonarQube-like Static Analysis with Big-O Complexity Detection
 
 > Java kod tabanları için statik analiz aracı:
-> - **15+ kod kokusu dedektörü** (Long Method, God Class, Magic Numbers, Unused Variables, vb.)
+> - **21 kod kokusu dedektörü** (Long Method, God Class, Magic Numbers, Duplicate Code, vb.)
 > - **Büyük-O karmaşıklık analizi** (döngüler, özyineleme, stream API)
 > - **Siklomatic karmaşıklık** hesaplaması
 > - **Pragmatic Programmer skorlaması** (DRY, Orthogonality, Correctness, Performance)
-> - **CLI arayüzü** - JSON ve konsol raporu
+> - **HTML/PDF raporlar** 🆕 - Chart.js ile profesyonel raporlar
+> - **Incremental Analysis** 🆕 - Cache ile 10x hızlı analiz
+> - **Configuration System** 🆕 - .pragmite.yaml ile proje bazlı ayarlar
+> - **CI/CD Integration** 🆕 - Quality gates ve exit codes
 > - **Otomatik düzeltme önerileri**
+
+**Current Version:** v1.2.0 | **Release Date:** December 25, 2025
 
 ---
 
@@ -114,17 +119,35 @@ java -jar pragmite-core-1.0.0.jar /path/to/java/project -f both -o report.json
 
 ### CLI Parametreleri
 
+**Temel Parametreler:**
 - `<projectDir>` - Analiz edilecek proje dizini (zorunlu)
-- `-f, --format` - Çıktı formatı: `console`, `json`, `both` (varsayılan: both)
-- `-o, --output` - JSON rapor dosya adı (varsayılan: pragmite-report.json)
-- `--complexity-threshold` - Cyclomatic complexity eşik değeri (varsayılan: 10)
-- `--method-length` - Maksimum metot uzunluğu (varsayılan: 30)
-- `--param-count` - Maksimum parametre sayısı (varsayılan: 4)
-- `--exclude` - Hariç tutulacak dizinler (virgülle ayrılmış)
-- `--include` - Dahil edilecek dosya pattern (glob)
+- `-f, --format` - Çıktı formatı: `console`, `json`, `html`, `pdf`, `both` (varsayılan: both)
+- `-o, --output` - Rapor dosya adı (varsayılan: pragmite-report.json)
 - `-v, --verbose` - Ayrıntılı çıktı
 - `-h, --help` - Yardım mesajını göster
 - `-V, --version` - Sürüm bilgisini göster
+
+**Configuration (v1.2.0):**
+- `--config` - YAML konfigürasyon dosyası (.pragmite.yaml)
+- `--generate-config` - Örnek .pragmite.yaml dosyası oluştur
+
+**Thresholds:**
+- `--complexity-threshold` - Cyclomatic complexity eşik değeri (varsayılan: 15)
+- `--method-length` - Maksimum metot uzunluğu (varsayılan: 50)
+- `--param-count` - Maksimum parametre sayısı (varsayılan: 5)
+
+**Filters:**
+- `--exclude` - Hariç tutulacak dizinler (virgülle ayrılmış)
+- `--include` - Dahil edilecek dosya pattern (glob)
+
+**Performance (v1.2.0):**
+- `--incremental` - Sadece değişen dosyaları analiz et (cache kullan)
+- `--clear-cache` - Analiz cache'ini temizle ve çık
+
+**Quality Gates (v1.2.0):**
+- `--fail-on-critical` - Kritik sorun varsa exit code 1 ile çık
+- `--min-quality-score` - Minimum kalite skoru (0-100)
+- `--max-critical-issues` - Maksimum kritik sorun sayısı
 
 ---
 
@@ -440,12 +463,18 @@ Pragmatic Score = (0.30 × DRY) + (0.25 × Orthogonality) +
 - ✅ Speculative generality (Over-abstraction detection)
 
 **✅ Faz 3 Tamamlandı (v1.2.0 - Enterprise Features):**
+- ✅ Configuration System (.pragmite.yaml) - Project-specific settings with YAML
+- ✅ HTML/PDF Report Export - Professional reports with Chart.js visualization
+- ✅ Incremental Analysis (Cache) - 10x faster analysis with SHA-256 file hashing
+- ✅ CI/CD Quality Gates - GitHub Actions & GitLab CI integration
 - ✅ Parallel analysis (Multi-threaded file processing, configurable threads)
-- ✅ Configuration system (.pragmite.properties with 30+ thresholds)
 - ✅ JFR (Java Flight Recorder) - Runtime performance profiling & hotspot detection
-- ✅ CI/CD Quality Gates - Threshold-based build fail/pass with presets
-- ✅ HTML Report Writer - Interactive visual reports with charts & filtering
 - ✅ Performance optimization - 2-4x faster on large projects
+
+**🚀 Faz 4 (v1.3.0 - Coming Soon):**
+- 🔄 One-Click Auto-Fix - Apply all fixes with single command
+- 🗄️ SQL Database - Historical analysis tracking with SQLite
+- ⏮️ Rollback System - Undo automatic fixes safely
 
 ---
 

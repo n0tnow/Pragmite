@@ -1,0 +1,52 @@
+# Pragmite Configuration File
+# Documentation: https://github.com/n0tnow/Pragmite#configuration
+
+# Custom thresholds for code smell detectors
+thresholds:
+  cyclomaticComplexity: 15      # Maximum cyclomatic complexity
+  longMethod: 50                # Maximum method lines
+  largeClass.lines: 400         # Maximum class lines
+  largeClass.methods: 25        # Maximum methods per class
+  longParameterList: 5          # Maximum parameters
+  deepNesting: 5                # Maximum nesting depth
+  switchStatement: 7            # Maximum switch cases
+  tooManyLiterals.numeric: 7    # Maximum numeric literals
+  tooManyLiterals.string: 5     # Maximum string literals
+  lazyClass: 80                 # Minimum class lines
+
+# Files/directories to exclude (glob patterns)
+exclude:
+  - "**/target/**"
+  - "**/build/**"
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/test-output/**"
+  # Add your custom excludes here:
+  # - "**/generated/**"
+  # - "**/vendor/**"
+
+# Severity overrides (default is based on code smell type)
+# Options: ERROR, WARNING, INFO
+severity:
+  # DUPLICATED_CODE: ERROR
+  # MAGIC_NUMBER: WARNING
+  # UNUSED_VARIABLE: INFO
+
+# Quality score weights (must sum to 1.0)
+qualityWeights:
+  dry: 0.30              # DRY (Don't Repeat Yourself)
+  orthogonality: 0.30    # Orthogonality (low coupling)
+  correctness: 0.25      # Correctness (no bugs)
+  performance: 0.15      # Performance (efficiency)
+
+# Analysis options
+analysis:
+  incremental: false          # Enable incremental analysis (cache)
+  parallel: true              # Enable parallel analysis
+  maxThreads: 8               # Maximum threads for parallel analysis
+  reportFormat: json          # Report format: json, html, pdf, both
+
+  # CI/CD Quality Gate options
+  failOnCritical: false       # Exit with code 1 if critical issues found
+  minQualityScore: 0          # Minimum quality score (0-100)
+  maxCriticalIssues: -1       # Maximum critical issues (-1 = unlimited)

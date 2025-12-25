@@ -1,223 +1,327 @@
 package com.pragmite.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Configuration loader for Pragmite.
- * Loads settings from .pragmite.yaml file with sensible defaults.
+ * Configuration model for Pragmite analysis.
+ * Loaded from .pragmite.yaml in the project root.
  *
- * Priority:
- * 1. Project root .pragmite.yaml
- * 2. User home .pragmite.yaml
- * 3. Built-in defaults
+ * Supports:
+ * - Custom thresholds for detectors
+ * - Exclude patterns (files/directories)
+ * - Severity customization
+ * - Quality score weights
  */
 public class PragmiteConfig {
-    private static final Logger logger = LoggerFactory.getLogger(PragmiteConfig.class);
-    private static final String CONFIG_FILE = ".pragmite.yaml";
 
-    // Detection thresholds
-    private int longMethodThreshold = 30;
-    private int longParameterListThreshold = 4;
-    private int complexityThreshold = 10;
-    private int nestingDepthThreshold = 4;
-    private int largeClassThreshold = 500;
-    private int godClassMethodThreshold = 20;
-    private int longLineThreshold = 120;
-    private int magicNumberThreshold = 5;
-    private int stringLiteralThreshold = 3;
+    // Thresholds for detectors
+    private Map<String, Integer> thresholds = new HashMap<>();
 
-    // Refactoring settings
-    private boolean autoApplyRefactorings = false;
-    private boolean createBackups = true;
-    private int backupRetentionCount = 10;
-    private boolean runTestsAfterRefactoring = true;
-    private boolean rollbackOnTestFailure = true;
+    // Exclude patterns (glob patterns)
+    private List<String> excludePatterns = new ArrayList<>();
 
-    // Performance settings
-    private boolean enableCaching = true;
-    private boolean enableParallelAnalysis = true;
-    private int parallelThreadCount = Runtime.getRuntime().availableProcessors();
-    private boolean enableProfiling = false;
+    // Severity overrides (detector -> severity)
+    private Map<String, String> severityOverrides = new HashMap<>();
 
-    // Output settings
-    private String outputFormat = "json";
-    private boolean verboseLogging = false;
-    private boolean generateReports = true;
+    // Quality score weights
+    private QualityWeights qualityWeights = new QualityWeights();
 
-    // Exclusions
-    private List<String> excludedPaths = Arrays.asList("target", "build", "node_modules", ".git");
-    private List<String> excludedFiles = Arrays.asList("*Test.java", "*Tests.java");
+    // Analysis options
+    private AnalysisOptions analysisOptions = new AnalysisOptions();
 
-    public static PragmiteConfig loadConfig() {
-        return loadConfig(null);
+    // Default constructor
+    public PragmiteConfig() {
+        setDefaultValues();
     }
 
-    public static PragmiteConfig loadConfig(Path projectRoot) {
-        PragmiteConfig config = new PragmiteConfig();
+    private void setDefaultValues() {
+        // Default thresholds
+        thresholds.put("cyclomaticComplexity", 15);
+        thresholds.put("longMethod", 50);
+        thresholds.put("largeClass.lines", 400);
+        thresholds.put("largeClass.methods", 25);
+        thresholds.put("longParameterList", 5);
+        thresholds.put("deepNesting", 5);
+        thresholds.put("switchStatement", 7);
+        thresholds.put("tooManyLiterals.numeric", 7);
+        thresholds.put("tooManyLiterals.string", 5);
+        thresholds.put("lazyClass", 80);
 
-        // Try to load from project root
-        if (projectRoot != null) {
-            Path projectConfig = projectRoot.resolve(CONFIG_FILE);
-            if (Files.exists(projectConfig)) {
-                logger.info("Loading config from: {}", projectConfig);
-                config.loadFromFile(projectConfig);
-                return config;
+        // Default excludes
+        excludePatterns.add("**/target/**");
+        excludePatterns.add("**/build/**");
+        excludePatterns.add("**/node_modules/**");
+        excludePatterns.add("**/.git/**");
+        excludePatterns.add("**/test-output/**");
+
+        // Default quality weights (from QualityScore.java)
+        qualityWeights.setDryWeight(0.30);
+        qualityWeights.setOrthogonalityWeight(0.30);
+        qualityWeights.setCorrectnessWeight(0.25);
+        qualityWeights.setPerformanceWeight(0.15);
+    }
+
+    // Getters and setters
+    public Map<String, Integer> getThresholds() {
+        return thresholds;
+    }
+
+    public void setThresholds(Map<String, Integer> thresholds) {
+        this.thresholds = thresholds;
+    }
+
+    public Integer getThreshold(String key) {
+        return thresholds.get(key);
+    }
+
+    public Integer getThreshold(String key, int defaultValue) {
+        return thresholds.getOrDefault(key, defaultValue);
+    }
+
+    public List<String> getExcludePatterns() {
+        return excludePatterns;
+    }
+
+    public void setExcludePatterns(List<String> excludePatterns) {
+        this.excludePatterns = excludePatterns;
+    }
+
+    public Map<String, String> getSeverityOverrides() {
+        return severityOverrides;
+    }
+
+    public void setSeverityOverrides(Map<String, String> severityOverrides) {
+        this.severityOverrides = severityOverrides;
+    }
+
+    public QualityWeights getQualityWeights() {
+        return qualityWeights;
+    }
+
+    public void setQualityWeights(QualityWeights qualityWeights) {
+        this.qualityWeights = qualityWeights;
+    }
+
+    public AnalysisOptions getAnalysisOptions() {
+        return analysisOptions;
+    }
+
+    public void setAnalysisOptions(AnalysisOptions analysisOptions) {
+        this.analysisOptions = analysisOptions;
+    }
+
+    /**
+     * Checks if a file path should be excluded based on patterns.
+     */
+    public boolean isExcluded(String filePath) {
+        if (filePath == null) return false;
+
+        // Normalize path separators
+        String normalizedPath = filePath.replace('\\', '/');
+
+        for (String pattern : excludePatterns) {
+            if (matchesGlobPattern(normalizedPath, pattern)) {
+                return true;
             }
         }
-
-        // Try to load from user home
-        Path homeConfig = Paths.get(System.getProperty("user.home"), CONFIG_FILE);
-        if (Files.exists(homeConfig)) {
-            logger.info("Loading config from: {}", homeConfig);
-            config.loadFromFile(homeConfig);
-            return config;
-        }
-
-        // Use defaults
-        logger.info("Using default configuration");
-        return config;
+        return false;
     }
 
-    @SuppressWarnings("unchecked")
-    private void loadFromFile(Path configFile) {
-        try (InputStream input = Files.newInputStream(configFile)) {
-            Yaml yaml = new Yaml();
-            Map<String, Object> data = yaml.load(input);
+    /**
+     * Simple glob pattern matching.
+     * Supports: ** (any path), * (any name)
+     */
+    private boolean matchesGlobPattern(String path, String pattern) {
+        // Normalize pattern
+        String normalizedPattern = pattern.replace('\\', '/');
 
-            if (data == null) {
-                logger.warn("Config file is empty, using defaults");
-                return;
-            }
+        // Convert glob to regex
+        String regex = normalizedPattern
+            .replace(".", "\\.")
+            .replace("**", ".*")
+            .replace("*", "[^/]*");
 
-            // Load detection thresholds
-            if (data.containsKey("thresholds")) {
-                Map<String, Object> thresholds = (Map<String, Object>) data.get("thresholds");
-                longMethodThreshold = getIntValue(thresholds, "long_method", longMethodThreshold);
-                longParameterListThreshold = getIntValue(thresholds, "long_parameter_list", longParameterListThreshold);
-                complexityThreshold = getIntValue(thresholds, "complexity", complexityThreshold);
-                nestingDepthThreshold = getIntValue(thresholds, "nesting_depth", nestingDepthThreshold);
-                largeClassThreshold = getIntValue(thresholds, "large_class", largeClassThreshold);
-                godClassMethodThreshold = getIntValue(thresholds, "god_class_methods", godClassMethodThreshold);
-                longLineThreshold = getIntValue(thresholds, "long_line", longLineThreshold);
-                magicNumberThreshold = getIntValue(thresholds, "magic_numbers", magicNumberThreshold);
-                stringLiteralThreshold = getIntValue(thresholds, "string_literals", stringLiteralThreshold);
-            }
+        return path.matches(regex);
+    }
 
-            // Load refactoring settings
-            if (data.containsKey("refactoring")) {
-                Map<String, Object> refactoring = (Map<String, Object>) data.get("refactoring");
-                autoApplyRefactorings = getBoolValue(refactoring, "auto_apply", autoApplyRefactorings);
-                createBackups = getBoolValue(refactoring, "create_backups", createBackups);
-                backupRetentionCount = getIntValue(refactoring, "backup_retention", backupRetentionCount);
-                runTestsAfterRefactoring = getBoolValue(refactoring, "run_tests", runTestsAfterRefactoring);
-                rollbackOnTestFailure = getBoolValue(refactoring, "rollback_on_failure", rollbackOnTestFailure);
-            }
+    /**
+     * Merges this configuration with another (CLI overrides config file).
+     */
+    public void merge(PragmiteConfig other) {
+        if (other == null) return;
 
-            // Load performance settings
-            if (data.containsKey("performance")) {
-                Map<String, Object> performance = (Map<String, Object>) data.get("performance");
-                enableCaching = getBoolValue(performance, "enable_caching", enableCaching);
-                enableParallelAnalysis = getBoolValue(performance, "enable_parallel", enableParallelAnalysis);
-                parallelThreadCount = getIntValue(performance, "thread_count", parallelThreadCount);
-                enableProfiling = getBoolValue(performance, "enable_profiling", enableProfiling);
-            }
+        // Merge thresholds
+        this.thresholds.putAll(other.thresholds);
 
-            // Load output settings
-            if (data.containsKey("output")) {
-                Map<String, Object> output = (Map<String, Object>) data.get("output");
-                outputFormat = getStringValue(output, "format", outputFormat);
-                verboseLogging = getBoolValue(output, "verbose", verboseLogging);
-                generateReports = getBoolValue(output, "generate_reports", generateReports);
-            }
+        // Merge exclude patterns (additive)
+        this.excludePatterns.addAll(other.excludePatterns);
 
-            // Load exclusions
-            if (data.containsKey("exclusions")) {
-                Map<String, Object> exclusions = (Map<String, Object>) data.get("exclusions");
-                if (exclusions.containsKey("paths")) {
-                    excludedPaths = (List<String>) exclusions.get("paths");
-                }
-                if (exclusions.containsKey("files")) {
-                    excludedFiles = (List<String>) exclusions.get("files");
-                }
-            }
+        // Merge severity overrides
+        this.severityOverrides.putAll(other.severityOverrides);
 
-            logger.info("Configuration loaded successfully");
+        // Merge quality weights
+        if (other.qualityWeights != null) {
+            this.qualityWeights = other.qualityWeights;
+        }
 
-        } catch (IOException e) {
-            logger.error("Failed to load config file: {}", configFile, e);
-        } catch (Exception e) {
-            logger.error("Error parsing config file: {}", configFile, e);
+        // Merge analysis options
+        if (other.analysisOptions != null) {
+            this.analysisOptions.merge(other.analysisOptions);
         }
     }
 
-    private int getIntValue(Map<String, Object> map, String key, int defaultValue) {
-        Object value = map.get(key);
-        if (value instanceof Integer) return (Integer) value;
-        if (value instanceof String) {
-            try {
-                return Integer.parseInt((String) value);
-            } catch (NumberFormatException e) {
-                logger.warn("Invalid integer value for {}: {}", key, value);
-            }
+    /**
+     * Quality score weights configuration.
+     */
+    public static class QualityWeights {
+        private double dryWeight = 0.30;
+        private double orthogonalityWeight = 0.30;
+        private double correctnessWeight = 0.25;
+        private double performanceWeight = 0.15;
+
+        public double getDryWeight() {
+            return dryWeight;
         }
-        return defaultValue;
-    }
 
-    private boolean getBoolValue(Map<String, Object> map, String key, boolean defaultValue) {
-        Object value = map.get(key);
-        if (value instanceof Boolean) return (Boolean) value;
-        if (value instanceof String) {
-            return Boolean.parseBoolean((String) value);
+        public void setDryWeight(double dryWeight) {
+            this.dryWeight = dryWeight;
         }
-        return defaultValue;
+
+        public double getOrthogonalityWeight() {
+            return orthogonalityWeight;
+        }
+
+        public void setOrthogonalityWeight(double orthogonalityWeight) {
+            this.orthogonalityWeight = orthogonalityWeight;
+        }
+
+        public double getCorrectnessWeight() {
+            return correctnessWeight;
+        }
+
+        public void setCorrectnessWeight(double correctnessWeight) {
+            this.correctnessWeight = correctnessWeight;
+        }
+
+        public double getPerformanceWeight() {
+            return performanceWeight;
+        }
+
+        public void setPerformanceWeight(double performanceWeight) {
+            this.performanceWeight = performanceWeight;
+        }
+
+        /**
+         * Validates that weights sum to 1.0.
+         */
+        public boolean isValid() {
+            double sum = dryWeight + orthogonalityWeight + correctnessWeight + performanceWeight;
+            return Math.abs(sum - 1.0) < 0.001; // Allow small floating point errors
+        }
     }
 
-    private String getStringValue(Map<String, Object> map, String key, String defaultValue) {
-        Object value = map.get(key);
-        return value != null ? value.toString() : defaultValue;
+    /**
+     * Analysis options configuration.
+     */
+    public static class AnalysisOptions {
+        private boolean incrementalAnalysis = false;
+        private boolean parallelAnalysis = true;
+        private int maxThreads = Runtime.getRuntime().availableProcessors();
+        private boolean generateReports = true;
+        private String reportFormat = "json"; // json, html, pdf, both
+        private boolean failOnCritical = false;
+        private int minQualityScore = 0;
+        private int maxCriticalIssues = -1; // -1 means unlimited
+
+        public boolean isIncrementalAnalysis() {
+            return incrementalAnalysis;
+        }
+
+        public void setIncrementalAnalysis(boolean incrementalAnalysis) {
+            this.incrementalAnalysis = incrementalAnalysis;
+        }
+
+        public boolean isParallelAnalysis() {
+            return parallelAnalysis;
+        }
+
+        public void setParallelAnalysis(boolean parallelAnalysis) {
+            this.parallelAnalysis = parallelAnalysis;
+        }
+
+        public int getMaxThreads() {
+            return maxThreads;
+        }
+
+        public void setMaxThreads(int maxThreads) {
+            this.maxThreads = maxThreads;
+        }
+
+        public boolean isGenerateReports() {
+            return generateReports;
+        }
+
+        public void setGenerateReports(boolean generateReports) {
+            this.generateReports = generateReports;
+        }
+
+        public String getReportFormat() {
+            return reportFormat;
+        }
+
+        public void setReportFormat(String reportFormat) {
+            this.reportFormat = reportFormat;
+        }
+
+        public boolean isFailOnCritical() {
+            return failOnCritical;
+        }
+
+        public void setFailOnCritical(boolean failOnCritical) {
+            this.failOnCritical = failOnCritical;
+        }
+
+        public int getMinQualityScore() {
+            return minQualityScore;
+        }
+
+        public void setMinQualityScore(int minQualityScore) {
+            this.minQualityScore = minQualityScore;
+        }
+
+        public int getMaxCriticalIssues() {
+            return maxCriticalIssues;
+        }
+
+        public void setMaxCriticalIssues(int maxCriticalIssues) {
+            this.maxCriticalIssues = maxCriticalIssues;
+        }
+
+        /**
+         * Merges with another AnalysisOptions (other takes precedence).
+         */
+        public void merge(AnalysisOptions other) {
+            if (other == null) return;
+
+            this.incrementalAnalysis = other.incrementalAnalysis;
+            this.parallelAnalysis = other.parallelAnalysis;
+            this.maxThreads = other.maxThreads;
+            this.generateReports = other.generateReports;
+            this.reportFormat = other.reportFormat;
+            this.failOnCritical = other.failOnCritical;
+            this.minQualityScore = other.minQualityScore;
+            this.maxCriticalIssues = other.maxCriticalIssues;
+        }
     }
-
-    // Getters
-    public int getLongMethodThreshold() { return longMethodThreshold; }
-    public int getLongParameterListThreshold() { return longParameterListThreshold; }
-    public int getComplexityThreshold() { return complexityThreshold; }
-    public int getNestingDepthThreshold() { return nestingDepthThreshold; }
-    public int getLargeClassThreshold() { return largeClassThreshold; }
-    public int getGodClassMethodThreshold() { return godClassMethodThreshold; }
-    public int getLongLineThreshold() { return longLineThreshold; }
-    public int getMagicNumberThreshold() { return magicNumberThreshold; }
-    public int getStringLiteralThreshold() { return stringLiteralThreshold; }
-
-    public boolean isAutoApplyRefactorings() { return autoApplyRefactorings; }
-    public boolean isCreateBackups() { return createBackups; }
-    public int getBackupRetentionCount() { return backupRetentionCount; }
-    public boolean isRunTestsAfterRefactoring() { return runTestsAfterRefactoring; }
-    public boolean isRollbackOnTestFailure() { return rollbackOnTestFailure; }
-
-    public boolean isEnableCaching() { return enableCaching; }
-    public boolean isEnableParallelAnalysis() { return enableParallelAnalysis; }
-    public int getParallelThreadCount() { return parallelThreadCount; }
-    public boolean isEnableProfiling() { return enableProfiling; }
-
-    public String getOutputFormat() { return outputFormat; }
-    public boolean isVerboseLogging() { return verboseLogging; }
-    public boolean isGenerateReports() { return generateReports; }
-
-    public List<String> getExcludedPaths() { return excludedPaths; }
-    public List<String> getExcludedFiles() { return excludedFiles; }
 
     @Override
     public String toString() {
-        return String.format("PragmiteConfig{longMethod=%d, complexity=%d, parallel=%s, caching=%s}",
-                           longMethodThreshold, complexityThreshold, enableParallelAnalysis, enableCaching);
+        return "PragmiteConfig{" +
+                "thresholds=" + thresholds.size() + " items, " +
+                "excludePatterns=" + excludePatterns.size() + " patterns, " +
+                "severityOverrides=" + severityOverrides.size() + " overrides, " +
+                "qualityWeights=" + qualityWeights + ", " +
+                "analysisOptions=" + analysisOptions +
+                '}';
     }
 }

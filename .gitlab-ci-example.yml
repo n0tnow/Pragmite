@@ -1,0 +1,57 @@
+# GitLab CI/CD Example for Pragmite Quality Gate
+# Copy this to your .gitlab-ci.yml file
+
+stages:
+  - test
+  - quality
+
+# Run Pragmite quality analysis
+pragmite-analysis:
+  stage: quality
+  image: eclipse-temurin:21-jdk
+
+  before_script:
+    - wget https://github.com/n0tnow/Pragmite/releases/latest/download/pragmite-core.jar -O pragmite-core.jar
+
+  script:
+    - |
+      java -jar pragmite-core.jar \
+        --fail-on-critical \
+        --min-quality-score 70 \
+        --max-critical-issues 0 \
+        --format json \
+        --output pragmite-report.json
+
+  artifacts:
+    reports:
+      # GitLab can parse this as code quality report
+      codequality: pragmite-report.json
+    paths:
+      - pragmite-report.json
+    when: always
+    expire_in: 30 days
+
+  # Allow failure for informational purposes (remove to enforce quality gate)
+  # allow_failure: true
+
+# Optional: Generate HTML report
+pragmite-report:
+  stage: quality
+  image: eclipse-temurin:21-jdk
+
+  before_script:
+    - wget https://github.com/n0tnow/Pragmite/releases/latest/download/pragmite-core.jar -O pragmite-core.jar
+
+  script:
+    - java -jar pragmite-core.jar --format html --output pragmite-report.html
+
+  artifacts:
+    paths:
+      - pragmite-report.html
+    when: always
+    expire_in: 30 days
+
+  only:
+    - main
+    - develop
+    - merge_requests
