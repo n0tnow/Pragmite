@@ -7,13 +7,17 @@
 > - **Büyük-O karmaşıklık analizi** (döngüler, özyineleme, stream API)
 > - **Siklomatic karmaşıklık** hesaplaması
 > - **Pragmatic Programmer skorlaması** (DRY, Orthogonality, Correctness, Performance)
-> - **HTML/PDF raporlar** 🆕 - Chart.js ile profesyonel raporlar
-> - **Incremental Analysis** 🆕 - Cache ile 10x hızlı analiz
-> - **Configuration System** 🆕 - .pragmite.yaml ile proje bazlı ayarlar
-> - **CI/CD Integration** 🆕 - Quality gates ve exit codes
-> - **Otomatik düzeltme önerileri**
+> - **HTML/PDF raporlar** - Chart.js ile profesyonel raporlar
+> - **Incremental Analysis** - Cache ile 10x hızlı analiz
+> - **Configuration System** - .pragmite.yaml ile proje bazlı ayarlar
+> - **CI/CD Integration** - Quality gates ve exit codes
+> - **SQL Database** - Analiz geçmişi takibi (SQLite)
+> - **Auto-Fix Infrastructure** - Otomatik düzeltme altyapısı
+> - **Rollback System** - Güvenli geri alma sistemi
+> - **AI-Powered Analysis** 🆕 - AI prompts for Claude/GPT-4/Gemini
+- **Auto-Refactoring** 🆕 - AI-generated code improvements with Claude API
 
-**Current Version:** v1.2.0 | **Release Date:** December 25, 2025
+**Current Version:** v1.4.0 | **Release Date:** December 25, 2025
 
 ---
 
@@ -148,6 +152,50 @@ java -jar pragmite-core-1.0.0.jar /path/to/java/project -f both -o report.json
 - `--fail-on-critical` - Kritik sorun varsa exit code 1 ile çık
 - `--min-quality-score` - Minimum kalite skoru (0-100)
 - `--max-critical-issues` - Maksimum kritik sorun sayısı
+
+**Auto-Fix (v1.3.0):**
+- `--apply-fixes` - Tüm otomatik düzeltmeleri uygula
+- `--fix-type <types>` - Sadece belirtilen tipteki sorunları düzelt (virgülle ayrılmış)
+- `--dry-run` - Düzeltmeleri önizle, uygulamadan göster
+- `--no-backup` - Düzeltme sırasında yedek oluşturma
+
+**Database & History (v1.3.0):**
+- `--save-to-db` - Analiz sonuçlarını veritabanına kaydet
+- `--show-history <N>` - Son N analiz sonucunu göster
+- `--show-trend <days>` - Son N günün kalite trendini göster
+
+**Rollback (v1.3.0):**
+- `--rollback-last` - En son düzeltme işlemini geri al
+- `--rollback <id>` - Belirtilen ID'li düzeltme işlemini geri al
+- `--rollback-file <path>` - Belirtilen dosyadaki tüm düzeltmeleri geri al
+- `--list-rollbacks` - Geri alınabilir düzeltme işlemlerini listele
+
+**AI-Powered Analysis (v1.4.0):**
+- `--generate-ai-prompts` - Generate AI-powered analysis with ready-to-use prompts
+- `--ai-output <path>` - AI analysis output file (JSON format, default: pragmite-ai-analysis.json)
+- `--auto-refactor` - 🆕 Automatically generate refactored code using Claude API
+- `--claude-api-key <key>` - 🆕 Claude API key (or use CLAUDE_API_KEY env var)
+
+**Auto-Refactoring Example (v1.4.0):**
+```bash
+# Set API key
+export CLAUDE_API_KEY="sk-ant-..."
+
+# Run analysis with auto-refactoring
+java -jar pragmite-core-1.4.0.jar ./my-project --generate-ai-prompts --auto-refactor --format html
+
+# View HTML report with before/after code comparison
+open pragmite-report.html
+```
+
+**Features:**
+- AI-generated refactored code for all detected code smells
+- Before/after comparison in HTML reports
+- Detailed explanations of changes
+- Benefits analysis (why refactored version is better)
+- Support for all code smell types
+
+📖 **Complete Guide:** See [docs/AUTO_REFACTORING_GUIDE.md](docs/AUTO_REFACTORING_GUIDE.md)
 
 ---
 
@@ -471,10 +519,21 @@ Pragmatic Score = (0.30 × DRY) + (0.25 × Orthogonality) +
 - ✅ JFR (Java Flight Recorder) - Runtime performance profiling & hotspot detection
 - ✅ Performance optimization - 2-4x faster on large projects
 
-**🚀 Faz 4 (v1.3.0 - Coming Soon):**
-- 🔄 One-Click Auto-Fix - Apply all fixes with single command
-- 🗄️ SQL Database - Historical analysis tracking with SQLite
-- ⏮️ Rollback System - Undo automatic fixes safely
+**✅ Faz 4 (v1.3.0 - Completed):**
+- ✅ SQL Database - Historical analysis tracking with SQLite
+- ✅ Auto-Fix Infrastructure - Framework for automatic fixes
+- ✅ Rollback System - Undo automatic fixes safely with database backups
+
+**🚀 Faz 5 (v1.4.0 - Coming Soon):**
+- 🤖 AI-Powered Error Analysis - Detailed explanations with ready-to-use AI prompts (English)
+  - Root cause analysis for each code smell
+  - Impact assessment and recommendations
+  - Copy-paste prompts for Claude/GPT-4/Gemini
+  - Context-aware code snippets
+- 🔧 Fixer Implementations - Actual auto-fix implementations for all detectors
+- 📊 Advanced Analytics Dashboard - Web-based quality trends visualization
+- 🤝 Team Collaboration - Central database server for team-wide tracking
+- 🔌 IDE Deep Integration - Real-time analysis & quick-fixes in VSCode/IntelliJ
 
 ---
 

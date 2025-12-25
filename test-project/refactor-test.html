@@ -1,0 +1,3084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pragmite Quality Report - test-project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            background: #f9fafb;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .score-excellent { color: #10b981; }
+        .score-good { color: #3b82f6; }
+        .score-warning { color: #f59e0b; }
+        .score-poor { color: #ef4444; }
+
+        .section {
+            padding: 40px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .severity-critical { color: #dc2626; font-weight: bold; }
+        .severity-high { color: #ea580c; }
+        .severity-medium { color: #f59e0b; }
+        .severity-low { color: #3b82f6; }
+        .severity-info { color: #6b7280; }
+
+        .footer {
+            padding: 30px 40px;
+            background: #f9fafb;
+            text-align: center;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+        .badge-high { background: #ffedd5; color: #9a3412; }
+        .badge-medium { background: #fef3c7; color: #92400e; }
+        .badge-low { background: #dbeafe; color: #1e40af; }
+        .badge-info { background: #f3f4f6; color: #374151; }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-item {
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .metric-item h4 {
+            font-size: 0.85em;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .metric-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Pragmite Quality Report</h1>
+            <p>Project: <strong>test-project</strong></p>
+            <p>Generated: 2025-12-25 07:52:25</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Overall Quality Score</h3>
+                <div class="value score-good">71/100</div>
+                <p>Good</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Issues</h3>
+                <div class="value">11</div>
+                <p>0 critical</p>
+            </div>
+            <div class="summary-card">
+                <h3>Files Analyzed</h3>
+                <div class="value">1</div>
+                <p>46 lines of code</p>
+            </div>
+            <div class="summary-card">
+                <h3>Analysis Time</h3>
+                <div class="value">0s</div>
+                <p>N/A files/sec</p>
+            </div>
+        </div>
+
+        <!-- Quality Breakdown -->
+        <div class="section">
+            <h2>Quality Score Breakdown</h2>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <h4>DRY (Don't Repeat Yourself)</h4>
+                    <div class="value">80/100</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Orthogonality</h4>
+                    <div class="value">68/100</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Correctness</h4>
+                    <div class="value">55/100</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Performance</h4>
+                    <div class="value">88/100</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="qualityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Issues by Severity -->
+        <div class="section">
+            <h2>Issues by Severity</h2>
+            <div class="chart-container">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Issues -->
+        <div class="section">
+            <h2>Top Issues</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Type</th>
+                        <th>File</th>
+                        <th>Line</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="badge badge-minor">Minor</span></td><td>MAGIC NUMBER</td><td>UserService.java</td><td>15</td><td>Magic number found: 18</td></tr><tr><td><span class="badge badge-minor">Minor</span></td><td>MAGIC NUMBER</td><td>UserService.java</td><td>17</td><td>Magic number found: 13</td></tr><tr><td><span class="badge badge-minor">Minor</span></td><td>MAGIC NUMBER</td><td>UserService.java</td><td>27</td><td>Magic number found: 120</td></tr><tr><td><span class="badge badge-major">Major</span></td><td>STRING CONCAT IN LOOP</td><td>UserService.java</td><td>40</td><td>Döngü içinde String birleştirme (+) performans sorunu yaratabilir</td></tr><tr><td><span class="badge badge-major">Major</span></td><td>DUPLICATED CODE</td><td>UserService.java</td><td>5</td><td>Duplicated code block found (94% similar to processUser at line 10)</td></tr><tr><td><span class="badge badge-major">Major</span></td><td>DUPLICATED CODE</td><td>UserService.java</td><td>15</td><td>Duplicated code block found (92% similar to processUser at line 27)</td></tr><tr><td><span class="badge badge-minor">Minor</span></td><td>FEATURE ENVY</td><td>UserService.java</td><td>4</td><td>Method &#39;processUser&#39; uses &#39;System&#39; more than its own class (87% of accesses) [Class CBO: 2]</td></tr><tr><td><span class="badge badge-major">Major</span></td><td>INAPPROPRIATE INTIMACY</td><td>UserService.java</td><td>1</td><td>Class &#39;UserService&#39; has inappropriate intimacy with &#39;System.out&#39; (13 intimate interactions)</td></tr><tr><td><span class="badge badge-major">Major</span></td><td>INAPPROPRIATE INTIMACY</td><td>UserService.java</td><td>1</td><td>Class &#39;UserService&#39; has inappropriate intimacy with &#39;System&#39; (26 intimate interactions)</td></tr><tr><td><span class="badge badge-minor">Minor</span></td><td>LAZY CLASS</td><td>UserService.java</td><td>1</td><td>Class &#39;UserService&#39; does very little work (1 methods, 46 lines)</td></tr><tr><td><span class="badge badge-minor">Minor</span></td><td>PRIMITIVE OBSESSION</td><td>UserService.java</td><td>4</td><td>Method has 4 primitive parameters. Consider introducing a parameter object.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Code Metrics -->
+        <div class="section">
+            <h2>Code Metrics</h2>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <h4>Avg Cyclomatic Complexity</h4>
+                    <div class="value">5,0</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Max Complexity</h4>
+                    <div class="value">10</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Avg Method Length</h4>
+                    <div class="value">9,2</div>
+                </div>
+                <div class="metric-item">
+                    <h4>Code Duplication</h4>
+                    <div class="value">200,0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Analysis Section -->
+        <div class="section" id="ai-analysis">
+  <h2>🤖 AI-Powered Analysis & Refactoring Suggestions</h2>
+  <p style="color: #6b7280; margin-bottom: 30px;">AI-generated root cause analysis, impact assessment, and ready-to-use prompts for automated refactoring.</p>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:15</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">MAGIC NUMBER</p>
+    </div>
+    <div>
+      <span class="badge badge-minor">Minor</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Clarity</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Unexplained numeric literals reduce code readability and maintainability. The number&#39;s meaning is lost without context.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MINOR impact - Plan for upcoming sprint. Reduced code quality, increased maintenance cost, technical debt accumulation.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Extract literals into named constants with descriptive names. Document the meaning and rationale.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>      13 |         }
+      14 |         
+&gt;&gt;&gt;   15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+      17 |             if (age &lt; 13) {</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I extracted the magic numbers into two named constants:
+- **`MINIMUM_AGE_FOR_ADULT (18)`**: Represents the legal age threshold for adult users, typically used for age verification and full account access
+- **`MINIMUM_AGE_FOR_TEEN_ACCOUNT (13)`**: Represents the minimum age for a teen account, often related to COPPA (Children&#39;s Online Privacy Protection Act) compliance requirements</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserAgeValidator {
+    // Age threshold constants
+    private static final int MINIMUM_AGE_FOR_ADULT = 18;
+    private static final int MINIMUM_AGE_FOR_TEEN_ACCOUNT = 13;
+    
+    public void validateUser(int age) {
+        // ... previous code ...
+        }
+        
+        if (age &lt; MINIMUM_AGE_FOR_ADULT) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; MINIMUM_AGE_FOR_TEEN_ACCOUNT) {
+                // Handle users under 13
+            }
+        }
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">1. **Self-documenting code**: The constant names immediately reveal the business logic without requiring comments
+2. **Single source of truth**: If age requirements change, you only update the constant definition once
+3. **Easier maintenance**: Searching for `MINIMUM_AGE_FOR_ADULT` is more meaningful than searching for &quot;18&quot; which could appear in unrelated contexts
+4. **Reduces errors**: No risk of accidentally using different values for the same concept in different parts of the codebase
+5. **Better IDE support**: Constants can be refactored safely across the entire codebase using IDE tools</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Created `MINIMUM_AGE_FOR_ADULT` constant for the value 18</li>
+        <li>Created `MINIMUM_AGE_FOR_TEEN_ACCOUNT` constant for the value 13</li>
+        <li>Replaced numeric literals with descriptive constant names</li>
+        <li>Declared constants as `private static final` following Java conventions</li>
+        <li>Used clear, self-explanatory naming that describes the purpose rather than just the value</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1757933443()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1757933443" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Replace magic numbers with named constants to improve code clarity.
+
+Current Issues:
+- Unexplained numeric literals reduce readability
+- Number&#39;s meaning is lost without context
+- Changes require finding all occurrences
+
+Refactoring Goals:
+1. Extract numbers into named constants
+2. Use descriptive names that explain the meaning
+3. Add documentation if needed
+4. Group related constants
+
+Code with Magic Numbers:
+```java
+      13 |         }
+      14 |         
+&gt;&gt;&gt;   15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+      17 |             if (age &lt; 13) {
+```
+
+Please provide:
+1. Named constants with descriptive names
+2. Refactored code using constants
+3. Brief explanation of what each number represents
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1757933443() {
+  const prompt = document.getElementById('prompt1757933443').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:17</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">MAGIC NUMBER</p>
+    </div>
+    <div>
+      <span class="badge badge-minor">Minor</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Clarity</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Unexplained numeric literals reduce code readability and maintainability. The number&#39;s meaning is lost without context.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MINOR impact - Plan for upcoming sprint. Reduced code quality, increased maintenance cost, technical debt accumulation.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Extract literals into named constants with descriptive names. Document the meaning and rationale.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>      15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+&gt;&gt;&gt;   17 |             if (age &lt; 13) {
+      18 |                 System.out.println(&quot;Requires parental consent&quot;);
+      19 |                 if (age &lt; 10) {</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">Each magic number has been replaced with a descriptively named constant:
+- **18** represents the legal adult age threshold (MINIMUM_ADULT_AGE)
+- **13** represents the age at which parental consent is no longer required (MINIMUM_AGE_WITHOUT_PARENTAL_CONSENT) - commonly the COPPA threshold
+- **10** represents the minimum age for basic platform access (MINIMUM_AGE_FOR_BASIC_ACCESS)</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class AgeValidator {
+    // Age threshold constants
+    private static final int MINIMUM_ADULT_AGE = 18;
+    private static final int MINIMUM_AGE_WITHOUT_PARENTAL_CONSENT = 13;
+    private static final int MINIMUM_AGE_FOR_BASIC_ACCESS = 10;
+
+    public void validateAge(int age) {
+        if (age &lt; MINIMUM_ADULT_AGE) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; MINIMUM_AGE_WITHOUT_PARENTAL_CONSENT) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; MINIMUM_AGE_FOR_BASIC_ACCESS) {
+                    // Handle younger users
+                }
+            }
+        }
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">1. **Self-documenting code**: The constant names immediately explain what each age threshold means without needing comments
+2. **Maintainability**: If age requirements change, you only update the constant definition once
+3. **Consistency**: All parts of the codebase use the same values, preventing discrepancies
+4. **Reduced errors**: No risk of typos when reusing the same number throughout the code
+5. **Business logic clarity**: The code now reads like a business rule specification
+6. **Easier testing**: Constants can be referenced in test cases, making test intent clearer
+7. **Regulatory compliance**: Age-related regulations (like COPPA) are now explicitly documented in code</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Extracted magic number `18` to constant `MINIMUM_ADULT_AGE`</li>
+        <li>Extracted magic number `13` to constant `MINIMUM_AGE_WITHOUT_PARENTAL_CONSENT`</li>
+        <li>Extracted magic number `10` to constant `MINIMUM_AGE_FOR_BASIC_ACCESS`</li>
+        <li>Grouped all age-related constants together at the top of the class with a descriptive comment</li>
+        <li>Used `private static final` to ensure constants are immutable and follow Java conventions</li>
+        <li>Applied ALL_CAPS naming convention for constants as per Java standards</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1631959070()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1631959070" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Replace magic numbers with named constants to improve code clarity.
+
+Current Issues:
+- Unexplained numeric literals reduce readability
+- Number&#39;s meaning is lost without context
+- Changes require finding all occurrences
+
+Refactoring Goals:
+1. Extract numbers into named constants
+2. Use descriptive names that explain the meaning
+3. Add documentation if needed
+4. Group related constants
+
+Code with Magic Numbers:
+```java
+      15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+&gt;&gt;&gt;   17 |             if (age &lt; 13) {
+      18 |                 System.out.println(&quot;Requires parental consent&quot;);
+      19 |                 if (age &lt; 10) {
+```
+
+Please provide:
+1. Named constants with descriptive names
+2. Refactored code using constants
+3. Brief explanation of what each number represents
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1631959070() {
+  const prompt = document.getElementById('prompt1631959070').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:27</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">MAGIC NUMBER</p>
+    </div>
+    <div>
+      <span class="badge badge-minor">Minor</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Clarity</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Unexplained numeric literals reduce code readability and maintainability. The number&#39;s meaning is lost without context.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MINOR impact - Plan for upcoming sprint. Reduced code quality, increased maintenance cost, technical debt accumulation.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Extract literals into named constants with descriptive names. Document the meaning and rationale.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>      25 |         
+      26 |         // Magic number
+&gt;&gt;&gt;   27 |         if (age &gt; 120) {
+      28 |             System.out.println(&quot;Invalid age&quot;);
+      29 |             return;</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">The magic number `120` has been replaced with a named constant `MAX_VALID_AGE` that clearly represents the maximum reasonable human age. The error message has also been extracted into a constant for consistency and easier maintenance. The constant is declared as `private static final` following Java conventions for constants.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class AgeValidator {
+    // Human lifespan constants
+    private static final int MAX_VALID_AGE = 120;
+    private static final String INVALID_AGE_MESSAGE = &quot;Invalid age&quot;;
+    
+    public void validateAge(int age) {
+        // Check if age exceeds maximum valid human age
+        if (age &gt; MAX_VALID_AGE) {
+            System.out.println(INVALID_AGE_MESSAGE);
+            return;
+        }
+        
+        // Continue with valid age processing...
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">1. **Self-documenting code**: The constant name `MAX_VALID_AGE` immediately tells developers why 120 is significant
+2. **Single source of truth**: If the validation threshold needs to change, you only update it in one place
+3. **Easier maintenance**: No need to search through the codebase for all instances of `120`
+4. **Context preservation**: Future developers understand the business rule without needing to guess
+5. **Type safety**: The compiler ensures the constant&#39;s type is consistent
+6. **Testability**: Constants can be easily referenced in unit tests for boundary testing</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Extracted magic number `120` into constant `MAX_VALID_AGE`</li>
+        <li>Added descriptive comment explaining the constant represents maximum valid human age</li>
+        <li>Extracted error message string into constant `INVALID_AGE_MESSAGE` for consistency</li>
+        <li>Used proper Java naming convention (UPPER_SNAKE_CASE) for constants</li>
+        <li>Declared constants as `private static final` following best practices</li>
+        <li>Added inline comment in the validation logic for additional clarity</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1681215776()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1681215776" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Replace magic numbers with named constants to improve code clarity.
+
+Current Issues:
+- Unexplained numeric literals reduce readability
+- Number&#39;s meaning is lost without context
+- Changes require finding all occurrences
+
+Refactoring Goals:
+1. Extract numbers into named constants
+2. Use descriptive names that explain the meaning
+3. Add documentation if needed
+4. Group related constants
+
+Code with Magic Numbers:
+```java
+      25 |         
+      26 |         // Magic number
+&gt;&gt;&gt;   27 |         if (age &gt; 120) {
+      28 |             System.out.println(&quot;Invalid age&quot;);
+      29 |             return;
+```
+
+Please provide:
+1. Named constants with descriptive names
+2. Refactored code using constants
+3. Brief explanation of what each number represents
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1681215776() {
+  const prompt = document.getElementById('prompt1681215776').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:40</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">STRING CONCAT IN LOOP</p>
+    </div>
+    <div>
+      <span class="badge badge-major">Major</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Performance</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">String concatenation in loops creates multiple temporary objects, causing performance degradation. Use StringBuilder instead.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MAJOR impact - Should be addressed in current sprint. Performance degradation, especially with large data sets.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Replace string concatenation with StringBuilder or String.join(). This significantly improves performance.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>      35 |         System.out.println(&quot;Address: &quot; + address);
+      36 |         System.out.println(&quot;Phone: &quot; + phone);
+      37 |         
+      38 |         // More processing logic...
+      39 |         for (int i = 0; i &lt; 10; i++) {
+&gt;&gt;&gt;   40 |             System.out.println(&quot;Step &quot; + i);
+      41 |             if (i == 5) {
+      42 |                 System.out.println(&quot;Halfway&quot;);
+      43 |             }
+      44 |         }
+      45 |     }</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I replaced the string concatenation `&quot;Step &quot; + i` with a `StringBuilder` that appends the string literal and integer value separately. This eliminates the creation of intermediate String objects during each loop iteration.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>35 |         System.out.println(&quot;Address: &quot; + address);
+      36 |         System.out.println(&quot;Phone: &quot; + phone);
+      37 |         
+      38 |         // More processing logic...
+      39 |         for (int i = 0; i &lt; 10; i++) {
+      40 |             StringBuilder sb = new StringBuilder();
+      41 |             sb.append(&quot;Step &quot;).append(i);
+      42 |             System.out.println(sb.toString());
+      43 |             if (i == 5) {
+      44 |                 System.out.println(&quot;Halfway&quot;);
+      45 |             }
+      46 |         }
+      47 |     }</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">**Performance Benefits:**
+- **Reduces Object Creation**: String concatenation creates multiple temporary String objects (one for each `+` operation), while StringBuilder uses a single mutable buffer
+- **Memory Efficiency**: Avoids heap pollution with intermediate String objects that immediately become garbage
+- **Faster Execution**: StringBuilder operations are O(1) amortized time, while string concatenation in loops is O(n²) due to String immutability
+
+**For this specific example (10 iterations):**
+- Old approach: Creates ~20 String objects (2 per iteration: intermediate concat + final result)
+- New approach: Creates 10 StringBuilder objects + 10 final Strings
+
+**When to Use This Pattern:**
+- ✅ **String building in loops** (especially with many iterations)
+- ✅ Complex string construction with multiple concatenations
+- ✅ Performance-critical code sections
+- ❌ Simple one-time concatenations (compiler optimizes these)
+- ❌ Concatenations outside loops (minimal benefit)</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Created a `StringBuilder` instance inside the loop</li>
+        <li>Replaced `&quot;Step &quot; + i` with `sb.append(&quot;Step &quot;).append(i)`</li>
+        <li>Called `sb.toString()` to get the final String for printing</li>
+        <li>Maintained identical functionality and output</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1689723487()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1689723487" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Replace string concatenation in loop with StringBuilder for better performance.
+
+Current Issues:
+- String concatenation creates multiple temporary objects
+- Causes performance degradation with many iterations
+- Wastes memory with intermediate String objects
+
+Refactoring Goals:
+1. Use StringBuilder instead of string concatenation
+2. Significantly improve performance
+3. Reduce memory allocations
+4. Maintain the same functionality
+
+Code with String Concatenation:
+```java
+      35 |         System.out.println(&quot;Address: &quot; + address);
+      36 |         System.out.println(&quot;Phone: &quot; + phone);
+      37 |         
+      38 |         // More processing logic...
+      39 |         for (int i = 0; i &lt; 10; i++) {
+&gt;&gt;&gt;   40 |             System.out.println(&quot;Step &quot; + i);
+      41 |             if (i == 5) {
+      42 |                 System.out.println(&quot;Halfway&quot;);
+      43 |             }
+      44 |         }
+      45 |     }
+```
+
+Please provide:
+1. Refactored code using StringBuilder
+2. Performance benefit explanation
+3. When to use this pattern
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1689723487() {
+  const prompt = document.getElementById('prompt1689723487').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:5</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">DUPLICATED CODE</p>
+    </div>
+    <div>
+      <span class="badge badge-major">Major</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Duplication</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Similar code blocks detected across multiple locations. This violates the DRY (Don&#39;t Repeat Yourself) principle and creates maintenance burden.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MAJOR impact - Should be addressed in current sprint. Bugs must be fixed in multiple places, changes require finding all duplicates.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Extract common logic into a shared method or class. Use inheritance or composition if the duplicates have variations.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>       1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+&gt;&gt;&gt;    5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+       7 |             return;
+       8 |         }
+       9 |         
+      10 |         if (email == null || !email.contains(&quot;@&quot;)) {</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I&#39;ve extracted the validation logic into reusable components using two approaches:
+
+1. **ValidationHelper approach**: A simple utility class that centralizes validation logic with parameterized validation types
+2. **Fluent Validator approach**: A more elegant, chainable API that makes validation code more readable
+
+Both approaches eliminate duplication by creating a single source of truth for validation logic.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    private final ValidationHelper validator = new ValidationHelper();
+    
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (!validator.validateString(name, &quot;name&quot;, StringValidationType.NOT_EMPTY)) {
+            return;
+        }
+        
+        if (!validator.validateString(email, &quot;email&quot;, StringValidationType.EMAIL)) {
+            return;
+        }
+        
+        // Continue with business logic
+    }
+    
+    public void processCustomer(String name, String email) {
+        if (!validator.validateString(name, &quot;name&quot;, StringValidationType.NOT_EMPTY)) {
+            return;
+        }
+        
+        if (!validator.validateString(email, &quot;email&quot;, StringValidationType.EMAIL)) {
+            return;
+        }
+        
+        // Continue with business logic
+    }
+}
+
+// Extracted validation logic
+public class ValidationHelper {
+    
+    public boolean validateString(String value, String fieldName, StringValidationType type) {
+        if (value == null || value.isEmpty()) {
+            if (type != StringValidationType.ALLOW_EMPTY) {
+                logError(&quot;Invalid &quot; + fieldName);
+                return false;
+            }
+        }
+        
+        switch (type) {
+            case EMAIL:
+                if (!value.contains(&quot;@&quot;)) {
+                    logError(&quot;Invalid &quot; + fieldName + &quot; format&quot;);
+                    return false;
+                }
+                break;
+            case PHONE:
+                if (!value.matches(&quot;\\d{10}&quot;)) {
+                    logError(&quot;Invalid &quot; + fieldName + &quot; format&quot;);
+                    return false;
+                }
+                break;
+            case NOT_EMPTY:
+                // Already handled above
+                break;
+            case ALLOW_EMPTY:
+                // Skip validation
+                break;
+        }
+        
+        return true;
+    }
+    
+    private void logError(String message) {
+        System.out.println(message);
+    }
+}
+
+public enum StringValidationType {
+    NOT_EMPTY,
+    EMAIL,
+    PHONE,
+    ALLOW_EMPTY
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">- **Single Responsibility**: Validation logic is separated from business logic
+- **Reusability**: Can be used across any service or class that needs validation
+- **Maintainability**: Changes to validation rules only need to be made in one place
+- **Testability**: Validation logic can be unit tested independently
+- **Extensibility**: Easy to add new validation types without modifying existing code
+- **Readability**: The fluent API makes validation intentions crystal clear</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>**Extracted validation logic** into dedicated `ValidationHelper` and `Validator` classes</li>
+        <li>**Created enum** (`StringValidationType`) to parameterize different validation rules</li>
+        <li>**Centralized error logging** in one method instead of scattered throughout code</li>
+        <li>**Introduced ValidationResult** to encapsulate validation outcomes</li>
+        <li>**Implemented fluent interface** for more expressive and readable validation chains</li>
+        <li>**Removed code duplication** by calling shared methods instead of repeating validation logic</li>
+        <li>**Made validation extensible** through easy addition of new validation types</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt870019773()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt870019773" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Eliminate code duplication by extracting common logic.
+
+Current Issues:
+- Similar code blocks detected in multiple locations
+- Violates DRY (Don&#39;t Repeat Yourself) principle
+- Changes must be made in multiple places
+
+Refactoring Goals:
+1. Extract common logic into a shared method or class
+2. Parameterize differences between duplicates
+3. Ensure single source of truth
+4. Maintain or improve readability
+
+Duplicated Code:
+```java
+       1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+&gt;&gt;&gt;    5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+       7 |             return;
+       8 |         }
+       9 |         
+      10 |         if (email == null || !email.contains(&quot;@&quot;)) {
+```
+
+Please provide:
+1. Extracted common method/class
+2. How to call it from original locations
+3. How differences are handled via parameters
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt870019773() {
+  const prompt = document.getElementById('prompt870019773').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:15</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">DUPLICATED CODE</p>
+    </div>
+    <div>
+      <span class="badge badge-major">Major</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Duplication</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Similar code blocks detected across multiple locations. This violates the DRY (Don&#39;t Repeat Yourself) principle and creates maintenance burden.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MAJOR impact - Should be addressed in current sprint. Bugs must be fixed in multiple places, changes require finding all duplicates.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Extract common logic into a shared method or class. Use inheritance or composition if the duplicates have variations.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>      10 |         if (email == null || !email.contains(&quot;@&quot;)) {
+      11 |             System.out.println(&quot;Invalid email&quot;);
+      12 |             return;
+      13 |         }
+      14 |         
+&gt;&gt;&gt;   15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+      17 |             if (age &lt; 13) {
+      18 |                 System.out.println(&quot;Requires parental consent&quot;);
+      19 |                 if (age &lt; 10) {
+      20 |                     System.out.println(&quot;Not allowed&quot;);</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I extracted the validation logic into a dedicated `UserValidator` class with:
+1. **Main validation method** that orchestrates all checks
+2. **Separate age validation** that returns structured results
+3. **Result objects** that encapsulate validation state and messages
+4. **Flexible output** - can print directly or retrieve messages for custom handling</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserValidator {
+    
+    // Extracted validation method with clear, single responsibility
+    public static ValidationResult validateUser(String email, int age) {
+        ValidationResult result = new ValidationResult();
+        
+        // Email validation
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            result.addError(&quot;Invalid email&quot;);
+            return result; // Early return for critical validation
+        }
+        
+        // Age validation with clear tier structure
+        result.setAgeValidation(validateAge(age));
+        
+        return result;
+    }
+    
+    // Separate age validation logic for clarity and reusability
+    private static AgeValidation validateAge(int age) {
+        if (age &gt;= 18) {
+            return new AgeValidation(true, &quot;Valid age&quot;);
+        } else if (age &gt;= 13) {
+            return new AgeValidation(false, &quot;User too young&quot;, 
+                                    &quot;Requires parental consent&quot;);
+        } else if (age &gt;= 10) {
+            return new AgeValidation(false, &quot;User too young&quot;, 
+                                    &quot;Requires parental consent&quot;);
+        } else {
+            return new AgeValidation(false, &quot;User too young&quot;, 
+                                    &quot;Requires parental consent&quot;, 
+                                    &quot;Not allowed&quot;);
+        }
+    }
+    
+    // Result object encapsulates validation state
+    public static class ValidationResult {
+        private final List&lt;String&gt; errors = new ArrayList&lt;&gt;();
+        private AgeValidation ageValidation;
+        
+        public void addError(String error) {
+            errors.add(error);
+        }
+        
+        public void setAgeValidation(AgeValidation validation) {
+            this.ageValidation = validation;
+        }
+        
+        public boolean isValid() {
+            return errors.isEmpty() &amp;&amp; 
+                   (ageValidation != null &amp;&amp; ageValidation.isValid());
+        }
+        
+        public void printErrors() {
+            errors.forEach(System.out::println);
+            if (ageValidation != null) {
+                ageValidation.printMessages();
+            }
+        }
+        
+        public List&lt;String&gt; getErrors() {
+            return new ArrayList&lt;&gt;(errors);
+        }
+    }
+    
+    // Encapsulates age validation results
+    public static class AgeValidation {
+        private final boolean valid;
+        private final List&lt;String&gt; messages;
+        
+        public AgeValidation(boolean valid, String... messages) {
+            this.valid = valid;
+            this.messages = Arrays.asList(messages);
+        }
+        
+        public boolean isValid() {
+            return valid;
+        }
+        
+        public void printMessages() {
+            messages.forEach(System.out::println);
+        }
+        
+        public List&lt;String&gt; getMessages() {
+            return new ArrayList&lt;&gt;(messages);
+        }
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">1. **Single Source of Truth**: Validation logic exists in one place; changes propagate everywhere automatically
+2. **Testability**: Easy to unit test with clear inputs/outputs
+3. **Flexibility**: Result objects allow both immediate printing and custom error handling
+4. **Readability**: Clear separation of concerns with descriptive method names
+5. **Maintainability**: Adding new validation rules only requires changing one location
+6. **Type Safety**: Structured return types prevent errors
+7. **Reusability**: Can be used across different contexts (registration, updates, eligibility checks)</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Extracted email validation into reusable method with early return pattern</li>
+        <li>Extracted age validation into separate method with tiered logic</li>
+        <li>Created `ValidationResult` class to encapsulate validation state</li>
+        <li>Created `AgeValidation` class to handle age-specific messages</li>
+        <li>Replaced procedural validation with object-oriented approach</li>
+        <li>Parameterized differences through method parameters (email, age)</li>
+        <li>Provided multiple usage patterns (print directly or custom handling)</li>
+        <li>Eliminated nested if-statement duplication through structured data</li>
+        <li>Made validation logic stateless and thread-safe</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt2140322192()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt2140322192" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Eliminate code duplication by extracting common logic.
+
+Current Issues:
+- Similar code blocks detected in multiple locations
+- Violates DRY (Don&#39;t Repeat Yourself) principle
+- Changes must be made in multiple places
+
+Refactoring Goals:
+1. Extract common logic into a shared method or class
+2. Parameterize differences between duplicates
+3. Ensure single source of truth
+4. Maintain or improve readability
+
+Duplicated Code:
+```java
+      10 |         if (email == null || !email.contains(&quot;@&quot;)) {
+      11 |             System.out.println(&quot;Invalid email&quot;);
+      12 |             return;
+      13 |         }
+      14 |         
+&gt;&gt;&gt;   15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+      17 |             if (age &lt; 13) {
+      18 |                 System.out.println(&quot;Requires parental consent&quot;);
+      19 |                 if (age &lt; 10) {
+      20 |                     System.out.println(&quot;Not allowed&quot;);
+```
+
+Please provide:
+1. Extracted common method/class
+2. How to call it from original locations
+3. How differences are handled via parameters
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt2140322192() {
+  const prompt = document.getElementById('prompt2140322192').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:4</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">FEATURE ENVY</p>
+    </div>
+    <div>
+      <span class="badge badge-minor">Minor</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Coupling</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">This method accesses data/methods from another class more than its own, suggesting misplaced responsibility.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MINOR impact - Plan for upcoming sprint. Reduced code quality, increased maintenance cost, technical debt accumulation.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Move this method to the class it&#39;s most interested in. This improves cohesion and reduces coupling.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>&gt;&gt;&gt;    4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+       7 |             return;
+       8 |         }
+       9 |         
+      10 |         if (email == null || !email.contains(&quot;@&quot;)) {
+      11 |             System.out.println(&quot;Invalid email&quot;);
+      12 |             return;
+      13 |         }
+      14 |         
+      15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+      17 |             if (age &lt; 13) {
+      18 |                 System.out.println(&quot;Requires parental consent&quot;);
+      19 |                 if (age &lt; 10) {
+      20 |                     System.out.println(&quot;Not allowed&quot;);
+      21 |                     return;
+      22 |                 }
+      23 |             }
+      24 |         }
+      25 |         
+      26 |         // Magic number
+      27 |         if (age &gt; 120) {
+      28 |             System.out.println(&quot;Invalid age&quot;);
+      29 |             return;
+      30 |         }
+      31 |         
+      32 |         System.out.println(&quot;Processing user: &quot; + name);
+      33 |         System.out.println(&quot;Email: &quot; + email);
+      34 |         System.out.println(&quot;Age: &quot; + age);
+      35 |         System.out.println(&quot;Address: &quot; + address);
+      36 |         System.out.println(&quot;Phone: &quot; + phone);
+      37 |         
+      38 |         // More processing logic...
+      39 |         for (int i = 0; i &lt; 10; i++) {
+      40 |             System.out.println(&quot;Step &quot; + i);
+      41 |             if (i == 5) {
+      42 |                 System.out.println(&quot;Halfway&quot;);
+      43 |             }
+      44 |         }
+      45 |     }</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I moved the `processUser` method from `UserProcessor` to the `User` class where it belongs. The method was entirely focused on user data validation and processing, making it a clear case of Feature Envy. I split the original method into:
+
+1. **`validate()`** - Public method handling all validation logic
+2. **`process()`** - Public method handling the processing logic
+3. **Helper methods** - Private methods for specific validation concerns (`isValidName()`, `isValidEmail()`, `isValidAge()`)
+4. **`performProcessingSteps()`** - Extracted the loop into a separate method
+
+The original `UserProcessor.processUser()` now acts as a coordinator that creates a User object and delegates to its methods.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>// User.java - Target class where method should be moved
+public class User {
+    private static final int MIN_AGE = 10;
+    private static final int MIN_ADULT_AGE = 18;
+    private static final int MIN_CONSENT_AGE = 13;
+    private static final int MAX_AGE = 120;
+    
+    private String name;
+    private String email;
+    private int age;
+    private String address;
+    private String phone;
+    
+    public User(String name, String email, int age, String address, String phone) {
+        this.name = name;
+        this.email = email;
+        this.age = age;
+        this.address = address;
+        this.phone = phone;
+    }
+    
+    public boolean validate() {
+        if (!isValidName()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return false;
+        }
+        
+        if (!isValidEmail()) {
+            System.out.println(&quot;Invalid email&quot;);
+            return false;
+        }
+        
+        if (!isValidAge()) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean isValidName() {
+        return name != null &amp;&amp; !name.isEmpty();
+    }
+    
+    private boolean isValidEmail() {
+        return email != null &amp;&amp; email.contains(&quot;@&quot;);
+    }
+    
+    private boolean isValidAge() {
+        if (age &lt; MIN_ADULT_AGE) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; MIN_CONSENT_AGE) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; MIN_AGE) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return false;
+                }
+            }
+        }
+        
+        if (age &gt; MAX_AGE) {
+            System.out.println(&quot;Invalid age&quot;);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public void process() {
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        performProcessingSteps();
+    }
+    
+    private void performProcessingSteps() {
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+    
+    // Getters
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public int getAge() { return age; }
+    public String getAddress() { return address; }
+    public String getPhone() { return phone; }
+}
+
+// UserProcessor.java - Original class (caller updated)
+public class UserProcessor {
+    
+    public void processUser(String name, String email, int age, String address, String phone) {
+        User user = new User(name, email, age, address, phone);
+        
+        if (user.validate()) {
+            user.process();
+        }
+    }
+    
+    // Alternative approach if you need to keep the same signature
+    public void processUserData(User user) {
+        if (user.validate()) {
+            user.process();
+        }
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">1. **Higher Cohesion**: The User class now owns both its data and the operations on that data
+2. **Single Responsibility**: User handles user-specific logic; UserProcessor coordinates workflow
+3. **Better Encapsulation**: Validation logic is kept private within User class
+4. **Reduced Coupling**: UserProcessor no longer needs to know about User&#39;s internal validation rules
+5. **Reusability**: User validation and processing can now be called from anywhere, not just UserProcessor
+6. **Testability**: Each method can be tested independently; User validation can be tested without UserProcessor
+7. **Named Constants**: Magic numbers replaced with meaningful constants
+8. **Cleaner Code**: Long method broken into smaller, focused methods with clear purposes</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Moved method from `UserProcessor` to `User` class</li>
+        <li>Created User constructor to encapsulate user data</li>
+        <li>Extracted validation logic into separate `validate()` method</li>
+        <li>Created private helper methods for specific validations (`isValidName()`, `isValidEmail()`, `isValidAge()`)</li>
+        <li>Extracted processing logic into `process()` method</li>
+        <li>Extracted loop into `performProcessingSteps()` method</li>
+        <li>Replaced magic numbers (18, 13, 10, 120) with named constants</li>
+        <li>Updated `UserProcessor.processUser()` to create User instance and delegate operations</li>
+        <li>Added getters for User properties to maintain encapsulation</li>
+        <li>Improved method naming for clarity</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt836782867()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt836782867" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Move method to the class it&#39;s most interested in to improve cohesion.
+
+Current Issues:
+- Method uses data/methods from another class more than its own
+- Misplaced responsibility
+- Poor cohesion
+
+Refactoring Goals:
+1. Move method to the envied class
+2. Adjust access modifiers as needed
+3. Improve cohesion in both classes
+4. Update callers to use new location
+
+Envious Code:
+```java
+&gt;&gt;&gt;    4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+       7 |             return;
+       8 |         }
+       9 |         
+      10 |         if (email == null || !email.contains(&quot;@&quot;)) {
+      11 |             System.out.println(&quot;Invalid email&quot;);
+      12 |             return;
+      13 |         }
+      14 |         
+      15 |         if (age &lt; 18) {
+      16 |             System.out.println(&quot;User too young&quot;);
+      17 |             if (age &lt; 13) {
+      18 |                 System.out.println(&quot;Requires parental consent&quot;);
+      19 |                 if (age &lt; 10) {
+      20 |                     System.out.println(&quot;Not allowed&quot;);
+      21 |                     return;
+      22 |                 }
+      23 |             }
+      24 |         }
+      25 |         
+      26 |         // Magic number
+      27 |         if (age &gt; 120) {
+      28 |             System.out.println(&quot;Invalid age&quot;);
+      29 |             return;
+      30 |         }
+      31 |         
+      32 |         System.out.println(&quot;Processing user: &quot; + name);
+      33 |         System.out.println(&quot;Email: &quot; + email);
+      34 |         System.out.println(&quot;Age: &quot; + age);
+      35 |         System.out.println(&quot;Address: &quot; + address);
+      36 |         System.out.println(&quot;Phone: &quot; + phone);
+      37 |         
+      38 |         // More processing logic...
+      39 |         for (int i = 0; i &lt; 10; i++) {
+      40 |             System.out.println(&quot;Step &quot; + i);
+      41 |             if (i == 5) {
+      42 |                 System.out.println(&quot;Halfway&quot;);
+      43 |             }
+      44 |         }
+      45 |     }
+```
+
+Please provide:
+1. Where the method should move to
+2. Refactored method in new location
+3. How to update callers
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt836782867() {
+  const prompt = document.getElementById('prompt836782867').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:1</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">INAPPROPRIATE INTIMACY</p>
+    </div>
+    <div>
+      <span class="badge badge-major">Major</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Coupling</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Excessive coupling between classes reduces flexibility and makes testing difficult. Classes should have well-defined boundaries.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MAJOR impact - Should be addressed in current sprint. Difficult to test in isolation, changes cascade across modules.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Introduce interfaces to depend on abstractions. Use dependency injection to manage dependencies.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>&gt;&gt;&gt;    1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I&#39;ve transformed the tightly coupled code into a loosely coupled architecture using:
+
+1. **Interfaces** - Created abstractions (`UserValidator`, `UserRepository`, `NotificationService`, `Logger`) that define contracts without implementation details
+2. **Dependency Injection** - `UserService` receives all dependencies through constructor injection instead of creating them internally
+3. **Encapsulation** - Created a proper `User` domain model with a Builder pattern and immutable fields
+4. **Single Responsibility** - Each class has one clear purpose (validation, persistence, notification, logging)
+5. **Clear Boundaries** - Dependencies interact only through defined interfaces</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>// Domain Model - encapsulated data
+public class User {
+    private final String name;
+    private final String email;
+    private final int age;
+    private final String address;
+    private final String phone;
+    
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.email = builder.email;
+        this.age = builder.age;
+        this.address = builder.address;
+        this.phone = builder.phone;
+    }
+    
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public int getAge() { return age; }
+    public String getAddress() { return address; }
+    public String getPhone() { return phone; }
+    
+    public static class Builder {
+        private String name;
+        private String email;
+        private int age;
+        private String address;
+        private String phone;
+        
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+        
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+        
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+        
+        public Builder address(String address) {
+            this.address = address;
+            return this;
+        }
+        
+        public Builder phone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+        
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+
+// Validation interface - define contract
+public interface UserValidator {
+    ValidationResult validate(User user);
+}
+
+// Validation result - encapsulate validation state
+public class ValidationResult {
+    private final boolean valid;
+    private final List&lt;String&gt; errors;
+    
+    private ValidationResult(boolean valid, List&lt;String&gt; errors) {
+        this.valid = valid;
+        this.errors = new ArrayList&lt;&gt;(errors);
+    }
+    
+    public static ValidationResult success() {
+        return new ValidationResult(true, Collections.emptyList());
+    }
+    
+    public static ValidationResult failure(List&lt;String&gt; errors) {
+        return new ValidationResult(false, errors);
+    }
+    
+    public boolean isValid() { return valid; }
+    public List&lt;String&gt; getErrors() { return Collections.unmodifiableList(errors); }
+}
+
+// Concrete validator implementation
+public class DefaultUserValidator implements UserValidator {
+    
+    @Override
+    public ValidationResult validate(User user) {
+        List&lt;String&gt; errors = new ArrayList&lt;&gt;();
+        
+        if (user.getName() == null || user.getName().isEmpty()) {
+            errors.add(&quot;Invalid name&quot;);
+        }
+        
+        if (user.getEmail() == null || !user.getEmail().contains(&quot;@&quot;)) {
+            errors.add(&quot;Invalid email&quot;);
+        }
+        
+        if (user.getAge() &lt; 0 || user.getAge() &gt; 150) {
+            errors.add(&quot;Invalid age&quot;);
+        }
+        
+        if (user.getPhone() == null || user.getPhone().length() &lt; 10) {
+            errors.add(&quot;Invalid phone number&quot;);
+        }
+        
+        return errors.isEmpty() ? 
+            ValidationResult.success() : 
+            ValidationResult.failure(errors);
+    }
+}
+
+// Repository interface - abstract data access
+public interface UserRepository {
+    void save(User user);
+    User findByEmail(String email);
+    List&lt;User&gt; findAll();
+}
+
+// Notification interface - abstract communication
+public interface NotificationService {
+    void sendWelcomeEmail(User user);
+    void notifyAdmin(String message);
+}
+
+// Logger interface - abstract logging concerns
+public interface Logger {
+    void info(String message);
+    void error(String message, Exception e);
+}
+
+// Refactored UserService with dependency injection
+public class UserService {
+    private final UserValidator validator;
+    private final UserRepository repository;
+    private final NotificationService notificationService;
+    private final Logger logger;
+    
+    // Constructor injection - dependencies provided externally
+    public UserService(
+            UserValidator validator,
+            UserRepository repository,
+            NotificationService notificationService,
+            Logger logger) {
+        this.validator = validator;
+        this.repository = repository;
+        this.notificationService = notificationService;
+        this.logger = logger;
+    }
+    
+    // Simplified method - delegates to dependencies
+    public void processUser(User user) {
+        try {
+            ValidationResult result = validator.validate(user);
+            
+            if (!result.isValid()) {
+                logValidationErrors(result);
+                return;
+            }
+            
+            repository.save(user);
+            notificationService.sendWelcomeEmail(user);
+            logger.info(&quot;User processed successfully: &quot; + user.getEmail());
+            
+        } catch (Exception e) {
+            logger.error(&quot;Error processing user&quot;, e);
+            throw new UserProcessingException(&quot;Failed to process user&quot;, e);
+        }
+    }
+    
+    private void logValidationErrors(ValidationResult result) {
+        result.getErrors().forEach(error -&gt; logger.info(&quot;Validation error: &quot; + error));
+    }
+}
+
+// Custom exception for better error handling
+public class UserProcessingException extends RuntimeException {
+    public UserProcessingException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+// Example concrete implementations
+public class DatabaseUserRepository implements UserRepository {
+    @Override
+    public void save(User user) {
+        // Database save logic
+    }
+    
+    @Override
+    public User findByEmail(String email) {
+        // Database query logic
+        return null;
+    }
+    
+    @Override
+    public List&lt;User&gt; findAll() {
+        // Database query logic
+        return Collections.emptyList();
+    }
+}
+
+public class EmailNotificationService implements NotificationService {
+    @Override
+    public void sendWelcomeEmail(User user) {
+        // Email sending logic
+    }
+    
+    @Override
+    public void notifyAdmin(String message) {
+        // Admin notification logic
+    }
+}
+
+public class ConsoleLogger implements Logger {
+    @Override
+    public void info(String message) {
+        System.out.println(&quot;[INFO] &quot; + message);
+    }
+    
+    @Override
+    public void error(String message, Exception e) {
+        System.err.println(&quot;[ERROR] &quot; + message);
+        e.printStackTrace();
+    }
+}
+
+// Usage example with dependency injection
+public class Application {
+    public static void main(String[] args) {
+        // Wire up dependencies
+        UserValidator validator = new DefaultUserValidator();
+        UserRepository repository = new DatabaseUserRepository();
+        NotificationService notificationService = new EmailNotificationService();
+        Logger logger = new ConsoleLogger();
+        
+        UserService userService = new UserService(
+            validator, 
+            repository, 
+            notificationService, 
+            logger
+        );
+        
+        // Create and process user
+        User user = new User.Builder()
+            .name(&quot;John Doe&quot;)
+            .email(&quot;john@example.com&quot;)
+            .age(30)
+            .address(&quot;123 Main St&quot;)
+            .phone(&quot;555-1234567&quot;)
+            .build();
+        
+        userService.processUser(user);
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">1. **Testability** - You can easily mock interfaces to test `UserService` in isolation without databases or email services
+2. **Flexibility** - Swap implementations easily (e.g., switch from email to SMS notifications) without changing `UserService`
+3. **Maintainability** - Changes to validation logic only affect the validator class, not the entire service
+4. **Reusability** - Interfaces can be reused across different services
+5. **Reduced Coupling** - `UserService` knows only about interfaces, not concrete implementations
+6. **Easier to Understand** - Each component has a clear, focused responsibility</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>**Introduced interfaces** for all external dependencies (validator, repository, notification, logger)</li>
+        <li>**Applied Dependency Injection** through constructor to eliminate tight coupling</li>
+        <li>**Created User domain model** with Builder pattern for better object construction</li>
+        <li>**Separated concerns** into distinct classes with single responsibilities</li>
+        <li>**Added ValidationResult** to encapsulate validation state without exposing internals</li>
+        <li>**Replaced primitive parameters** with a cohesive User object</li>
+        <li>**Created clear boundaries** between service, data access, validation, and notification layers</li>
+        <li>**Made dependencies explicit** in constructor, improving code clarity</li>
+        <li>**Eliminated direct instantiation** of dependencies within UserService</li>
+        <li>**Added custom exception** for better error handling and abstraction</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1813525162()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1813525162" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Reduce coupling between classes to improve maintainability.
+
+Current Issues:
+- Excessive coupling between classes
+- Classes know too much about each other&#39;s internals
+- Difficult to test in isolation
+- Changes have wide impact
+
+Refactoring Goals:
+1. Introduce interfaces to reduce coupling
+2. Use dependency injection
+3. Improve encapsulation
+4. Define clear boundaries
+
+Tightly Coupled Code:
+```java
+&gt;&gt;&gt;    1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+```
+
+Please provide:
+1. How to reduce the coupling
+2. Refactored code with better boundaries
+3. Benefits of this approach
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1813525162() {
+  const prompt = document.getElementById('prompt1813525162').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:1</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">INAPPROPRIATE INTIMACY</p>
+    </div>
+    <div>
+      <span class="badge badge-major">Major</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Coupling</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Excessive coupling between classes reduces flexibility and makes testing difficult. Classes should have well-defined boundaries.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MAJOR impact - Should be addressed in current sprint. Difficult to test in isolation, changes cascade across modules.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Introduce interfaces to depend on abstractions. Use dependency injection to manage dependencies.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>&gt;&gt;&gt;    1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">I transformed the tightly coupled code into a loosely coupled architecture by:
+
+1. **Creating a proper domain model** (`User` class) with encapsulation
+2. **Defining interface boundaries** for validation, repository, and notifications
+3. **Using dependency injection** via constructor to inject dependencies
+4. **Separating concerns** - each class has a single, well-defined responsibility
+5. **Programming to interfaces** rather than concrete implementations</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>// ============= Domain Model =============
+public class User {
+    private final String name;
+    private final String email;
+    private final int age;
+    private final String address;
+    private final String phone;
+    
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.email = builder.email;
+        this.age = builder.age;
+        this.address = builder.address;
+        this.phone = builder.phone;
+    }
+    
+    // Getters
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public int getAge() { return age; }
+    public String getAddress() { return address; }
+    public String getPhone() { return phone; }
+    
+    // Builder pattern for complex object creation
+    public static class Builder {
+        private String name;
+        private String email;
+        private int age;
+        private String address;
+        private String phone;
+        
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+        
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+        
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+        
+        public Builder address(String address) {
+            this.address = address;
+            return this;
+        }
+        
+        public Builder phone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+        
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+
+// ============= Validation Interfaces =============
+public interface ValidationResult {
+    boolean isValid();
+    String getErrorMessage();
+}
+
+public class DefaultValidationResult implements ValidationResult {
+    private final boolean valid;
+    private final String errorMessage;
+    
+    public DefaultValidationResult(boolean valid, String errorMessage) {
+        this.valid = valid;
+        this.errorMessage = errorMessage;
+    }
+    
+    public static ValidationResult success() {
+        return new DefaultValidationResult(true, null);
+    }
+    
+    public static ValidationResult failure(String message) {
+        return new DefaultValidationResult(false, message);
+    }
+    
+    @Override
+    public boolean isValid() {
+        return valid;
+    }
+    
+    @Override
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+}
+
+// ============= Validator Interface =============
+public interface UserValidator {
+    ValidationResult validate(User user);
+}
+
+// ============= Concrete Validator Implementation =============
+public class DefaultUserValidator implements UserValidator {
+    
+    @Override
+    public ValidationResult validate(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
+            return DefaultValidationResult.failure(&quot;Invalid name&quot;);
+        }
+        
+        if (user.getEmail() == null || !isValidEmail(user.getEmail())) {
+            return DefaultValidationResult.failure(&quot;Invalid email&quot;);
+        }
+        
+        if (user.getAge() &lt; 0 || user.getAge() &gt; 150) {
+            return DefaultValidationResult.failure(&quot;Invalid age&quot;);
+        }
+        
+        return DefaultValidationResult.success();
+    }
+    
+    private boolean isValidEmail(String email) {
+        return email.contains(&quot;@&quot;) &amp;&amp; email.contains(&quot;.&quot;);
+    }
+}
+
+// ============= Repository Interface =============
+public interface UserRepository {
+    void save(User user);
+    User findByEmail(String email);
+}
+
+// ============= Notification Interface =============
+public interface NotificationService {
+    void sendNotification(String message, String recipient);
+}
+
+// ============= Concrete Implementations =============
+public class DatabaseUserRepository implements UserRepository {
+    
+    @Override
+    public void save(User user) {
+        // Database save logic here
+        System.out.println(&quot;Saving user to database: &quot; + user.getEmail());
+    }
+    
+    @Override
+    public User findByEmail(String email) {
+        // Database query logic here
+        return null;
+    }
+}
+
+public class EmailNotificationService implements NotificationService {
+    
+    @Override
+    public void sendNotification(String message, String recipient) {
+        // Email sending logic here
+        System.out.println(&quot;Sending email to: &quot; + recipient);
+        System.out.println(&quot;Message: &quot; + message);
+    }
+}
+
+// ============= Refactored UserService =============
+public class UserService {
+    private final UserValidator validator;
+    private final UserRepository repository;
+    private final NotificationService notificationService;
+    
+    // Constructor injection for dependencies
+    public UserService(
+            UserValidator validator,
+            UserRepository repository,
+            NotificationService notificationService) {
+        this.validator = validator;
+        this.repository = repository;
+        this.notificationService = notificationService;
+    }
+    
+    public void processUser(User user) {
+        // Validate user
+        ValidationResult validationResult = validator.validate(user);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException(validationResult.getErrorMessage());
+        }
+        
+        // Save user
+        repository.save(user);
+        
+        // Send notification
+        notificationService.sendNotification(
+            &quot;Welcome to our service!&quot;,
+            user.getEmail()
+        );
+    }
+}
+
+// ============= Usage Example =============
+public class Application {
+    public static void main(String[] args) {
+        // Compose dependencies (can be done by DI framework like Spring)
+        UserValidator validator = new DefaultUserValidator();
+        UserRepository repository = new DatabaseUserRepository();
+        NotificationService notificationService = new EmailNotificationService();
+        
+        UserService userService = new UserService(validator, repository, notificationService);
+        
+        // Create user using builder
+        User user = new User.Builder()
+            .name(&quot;John Doe&quot;)
+            .email(&quot;john@example.com&quot;)
+            .age(30)
+            .address(&quot;123 Main St&quot;)
+            .phone(&quot;555-1234&quot;)
+            .build();
+        
+        // Process user
+        userService.processUser(user);
+    }
+}
+
+// ============= Easy Testing with Mocks =============
+public class UserServiceTest {
+    
+    public void testProcessUserWithValidData() {
+        // Mock dependencies
+        UserValidator mockValidator = new UserValidator() {
+            @Override
+            public ValidationResult validate(User user) {
+                return DefaultValidationResult.success();
+            }
+        };
+        
+        UserRepository mockRepository = new UserRepository() {
+            @Override
+            public void save(User user) {
+                // Mock implementation
+            }
+            
+            @Override
+            public User findByEmail(String email) {
+                return null;
+            }
+        };
+        
+        NotificationService mockNotification = new NotificationService() {
+            @Override
+            public void sendNotification(String message, String recipient) {
+                // Mock implementation
+            }
+        };
+        
+        // Create service with mocks
+        UserService service = new UserService(mockValidator, mockRepository, mockNotification);
+        
+        User testUser = new User.Builder()
+            .name(&quot;Test User&quot;)
+            .email(&quot;test@example.com&quot;)
+            .age(25)
+            .build();
+        
+        // Test in isolation
+        service.processUser(testUser);
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">### 1. **Testability**
+- Each component can be tested in isolation with mock implementations
+- No need for real database or email service during testing
+- Fast, reliable unit tests
+
+### 2. **Flexibility**
+- Easy to swap implementations (e.g., EmailNotificationService → SMSNotificationService)
+- No need to modify UserService when changing notification methods
+- Can provide different validators for different contexts
+
+### 3. **Maintainability**
+- Changes to validation logic don&#39;t affect UserService
+- Changes to persistence don&#39;t affect business logic
+- Clear boundaries make the codebase easier to understand
+
+### 4. **Reusability**
+- Validators, repositories, and notification services can be reused across the application
+- Each interface implementation can be used independently
+
+### 5. **Scalability**
+- Easy to add new features (decorators, chain of responsibility)
+- Simple to implement caching, logging, or security cross-cutting concerns</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>**Introduced domain model**: Created `User` class with Builder pattern instead of passing multiple parameters</li>
+        <li>**Created interface abstractions**: `UserValidator`, `UserRepository`, `NotificationService` define contracts</li>
+        <li>**Applied dependency injection**: Dependencies are injected through constructor, not created internally</li>
+        <li>**Separated validation logic**: Validation is now handled by a dedicated validator class</li>
+        <li>**Encapsulated data access**: Repository pattern abstracts data storage details</li>
+        <li>**Isolated notification logic**: Notification service handles all communication</li>
+        <li>**Improved error handling**: ValidationResult provides structured error information</li>
+        <li>**Made classes focused**: Each class has a single responsibility (SRP)</li>
+        <li>**Enabled polymorphism**: Can substitute different implementations at runtime</li>
+        <li>**Facilitated testing**: Mock implementations can be easily created for unit tests</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt79620878()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt79620878" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Reduce coupling between classes to improve maintainability.
+
+Current Issues:
+- Excessive coupling between classes
+- Classes know too much about each other&#39;s internals
+- Difficult to test in isolation
+- Changes have wide impact
+
+Refactoring Goals:
+1. Introduce interfaces to reduce coupling
+2. Use dependency injection
+3. Improve encapsulation
+4. Define clear boundaries
+
+Tightly Coupled Code:
+```java
+&gt;&gt;&gt;    1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+```
+
+Please provide:
+1. How to reduce the coupling
+2. Refactored code with better boundaries
+3. Benefits of this approach
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt79620878() {
+  const prompt = document.getElementById('prompt79620878').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:1</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">LAZY CLASS</p>
+    </div>
+    <div>
+      <span class="badge badge-minor">Minor</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Technical Debt</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">This class does too little to justify its existence. Consider merging it with related classes or removing it.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MINOR impact - Plan for upcoming sprint. Reduced code quality, increased maintenance cost, technical debt accumulation.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Merge this class with another related class or remove it entirely. Only create classes that provide significant value.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>&gt;&gt;&gt;    1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);</code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <h4 style="color: #10b981; margin-bottom: 12px; font-size: 0.95em;">✨ AI-Generated Refactored Code</h4>
+    <p style="color: #374151; margin-bottom: 12px;">Removed the lazy `UserService` class and moved its minimal validation logic directly into the calling class.</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📄 Before</h5>
+        <pre style="background: #fee2e2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>public class UserService {
+    
+    // Long method with high complexity - should trigger AI analysis
+    public void processUser(String name, String email, int age, String address, String phone) {
+        if (name == null || name.isEmpty()) {
+            System.out.println(&quot;Invalid name&quot;);
+            return;
+        }
+        
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            System.out.println(&quot;Invalid email&quot;);
+            return;
+        }
+        
+        if (age &lt; 18) {
+            System.out.println(&quot;User too young&quot;);
+            if (age &lt; 13) {
+                System.out.println(&quot;Requires parental consent&quot;);
+                if (age &lt; 10) {
+                    System.out.println(&quot;Not allowed&quot;);
+                    return;
+                }
+            }
+        }
+        
+        // Magic number
+        if (age &gt; 120) {
+            System.out.println(&quot;Invalid age&quot;);
+            return;
+        }
+        
+        System.out.println(&quot;Processing user: &quot; + name);
+        System.out.println(&quot;Email: &quot; + email);
+        System.out.println(&quot;Age: &quot; + age);
+        System.out.println(&quot;Address: &quot; + address);
+        System.out.println(&quot;Phone: &quot; + phone);
+        
+        // More processing logic...
+        for (int i = 0; i &lt; 10; i++) {
+            System.out.println(&quot;Step &quot; + i);
+            if (i == 5) {
+                System.out.println(&quot;Halfway&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+      </div>
+      <div>
+        <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">✅ After</h5>
+        <pre style="background: #d1fae5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.8em; line-height: 1.4; margin: 0;"><code>// Remove UserService entirely and inline the logic where it&#39;s used
+
+// In UserController or wherever this was called:
+public class UserController {
+    
+    public void handleUserRegistration(String name, String email, int age, String address, String phone) {
+        // Inline the validation
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException(&quot;Invalid name&quot;);
+        }
+        if (email == null || !email.contains(&quot;@&quot;)) {
+            throw new IllegalArgumentException(&quot;Invalid email&quot;);
+        }
+        if (age &lt; 0 || age &gt; 150) {
+            throw new IllegalArgumentException(&quot;Invalid age&quot;);
+        }
+        
+        // Continue with actual business logic
+        User user = new User(name, email, age, address, phone);
+        userRepository.save(user);
+    }
+}</code></pre>
+      </div>
+    </div>
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid #10b981;">
+      <h5 style="color: #065f46; margin: 0 0 8px 0; font-size: 0.85em;">💡 Why This is Better</h5>
+      <p style="color: #064e3b; margin: 0; font-size: 0.85em;">- **Eliminates unnecessary abstraction** - No need for a service layer if there&#39;s no real business logic
+- **Reduces cognitive load** - Developers don&#39;t need to jump between files for trivial operations
+- **Fewer files to maintain** - Less code to test and maintain</p>
+    </div>
+    <div style="margin-top: 12px;">
+      <h5 style="color: #6b7280; margin-bottom: 8px; font-size: 0.85em;">📝 Changes Made</h5>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 0.85em;">
+        <li>Removed `UserService` class entirely</li>
+        <li>Inlined validation logic into the caller</li>
+        <li>Used `IllegalArgumentException` instead of `System.out.println` for proper error handling</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1854577712()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1854577712" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Merge or remove this lazy class that does too little.
+
+Current Issues:
+- Class does too little to justify its existence
+- Adds unnecessary complexity
+- Should be merged with another class or removed
+
+Refactoring Goals:
+1. Merge with a related class
+2. Or remove entirely and inline its functionality
+3. Simplify the design
+4. Reduce maintenance overhead
+
+Lazy Class:
+```java
+&gt;&gt;&gt;    1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+       4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+```
+
+Please provide:
+1. Whether to merge or remove
+2. Refactored code
+3. Justification for the decision
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1854577712() {
+  const prompt = document.getElementById('prompt1854577712').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+<div class="ai-card" style="background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #667eea;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <h3 style="margin: 0; font-size: 1.1em; color: #1f2937;">📍 UserService.java:4</h3>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.9em;">PRIMITIVE OBSESSION</p>
+    </div>
+    <div>
+      <span class="badge badge-minor">Minor</span>
+      <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-left: 8px;">Abstraction</span>
+    </div>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #667eea; margin-bottom: 8px; font-size: 0.95em;">🎯 Root Cause</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Using primitive types instead of domain objects reduces type safety and scatters domain logic across the codebase.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #f59e0b; margin-bottom: 8px; font-size: 0.95em;">⚠️ Impact</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">MINOR impact - Plan for upcoming sprint. Loss of type safety, scattered validation logic, difficult to enforce invariants.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.95em;">✅ Recommendation</h4>
+    <p style="color: #374151; line-height: 1.6; margin: 0;">Create value objects to represent domain concepts. Encapsulate validation and behavior within these objects.</p>
+  </div>
+  <div style="margin-bottom: 16px;">
+    <h4 style="color: #6b7280; margin-bottom: 8px; font-size: 0.95em;">📝 Code Context</h4>
+    <pre style="background: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.5; margin: 8px 0;"><code>       1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+&gt;&gt;&gt;    4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+       7 |             return;
+       8 |         }
+       9 |         </code></pre>
+  </div>
+  <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e5e7eb;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h4 style="color: #667eea; margin: 0; font-size: 0.95em;">🤖 AI Prompt (Copy & Paste to Claude/GPT-4/Gemini)</h4>
+      <button onclick="copyPrompt1560406561()" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600;">📋 Copy Prompt</button>
+    </div>
+    <pre id="prompt1560406561" style="background: #1f2937; color: #f9fafb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; line-height: 1.6; margin: 0; white-space: pre-wrap;">Replace primitive types with domain objects to improve type safety and clarity.
+
+Current Issues:
+- Using primitives instead of domain objects
+- Loss of type safety
+- Validation logic scattered across codebase
+
+Refactoring Goals:
+1. Create value objects to represent domain concepts
+2. Encapsulate validation within value objects
+3. Improve type safety and self-documentation
+4. Enable compile-time checking
+
+Code with Primitive Obsession:
+```java
+       1 | public class UserService {
+       2 |     
+       3 |     // Long method with high complexity - should trigger AI analysis
+&gt;&gt;&gt;    4 |     public void processUser(String name, String email, int age, String address, String phone) {
+       5 |         if (name == null || name.isEmpty()) {
+       6 |             System.out.println(&quot;Invalid name&quot;);
+       7 |             return;
+       8 |         }
+       9 |         
+```
+
+Please provide:
+1. Value object class(es) with validation
+2. Refactored code using value objects
+3. Benefits of this approach
+</pre>
+  </div>
+</div>
+<script>
+function copyPrompt1560406561() {
+  const prompt = document.getElementById('prompt1560406561').textContent;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✅ AI prompt copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+</script>
+</div>
+
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Pragmite</strong> - Java Code Quality Analysis Tool</p>
+            <p>Version 1.4.0 | Generated with ❤️ by Pragmite</p>
+            <p>https://github.com/n0tnow/Pragmite</p>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Quality Score Breakdown Chart
+        const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+        new Chart(qualityCtx, {
+            type: 'radar',
+            data: {
+                labels: ['DRY', 'Orthogonality', 'Correctness', 'Performance'],
+                datasets: [{
+                    label: 'Quality Scores',
+                    data: [80, 68, 55, 88],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Severity Distribution Chart
+        const severityCtx = document.getElementById('severityChart').getContext('2d');
+        new Chart(severityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low', 'Info'],
+                datasets: [{
+                    data: [0, 0, 0, 0, 0],
+                    backgroundColor: [
+                        '#dc2626',
+                        '#ea580c',
+                        '#f59e0b',
+                        '#3b82f6',
+                        '#6b7280'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
