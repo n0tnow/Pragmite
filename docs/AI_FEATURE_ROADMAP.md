@@ -473,74 +473,12 @@ java -jar pragmite-core-1.4.0.jar /path/to/project \
 
 ---
 
-## 🚀 v1.5.0 - Multi-Provider AI & Advanced Features (PLANNED)
+## 🚀 v1.5.0 - Automatic Code Application (PLANNED)
 
 **Target Release:** Q1 2026
 **Priority:** ⭐⭐⭐⭐⭐
 
-### Phase 3: Multi-Provider AI Support (12-15 hours)
-**Priority:** ⭐⭐⭐⭐⭐
-
-**Goal:** GPT-4, Gemini ve diğer AI provider'ları destekle
-
-**Features:**
-- [ ] AI Provider abstraction layer
-- [ ] GPT-4 integration (OpenAI API)
-- [ ] Gemini integration (Google AI)
-- [ ] Provider selection in CLI and config
-- [ ] Unified response parsing
-- [ ] Provider-specific prompt optimization
-- [ ] Cost comparison between providers
-- [ ] Automatic fallback on errors
-
-**Implementation:**
-
-#### 3.1. AI Provider Interface
-```java
-public interface AIProvider {
-    RefactoredCode generateRefactoring(String prompt, String code);
-    boolean isAvailable();
-    String getModelName();
-    double estimateCost(String prompt);
-}
-```
-
-#### 3.2. Provider Implementations
-```java
-// ClaudeProvider.java - Already implemented
-// GPT4Provider.java - New
-// GeminiProvider.java - New
-public class AIProviderFactory {
-    public static AIProvider create(ApiConfig config) {
-        return switch (config.getProvider()) {
-            case "claude" -> new ClaudeProvider(config);
-            case "gpt-4" -> new GPT4Provider(config);
-            case "gemini" -> new GeminiProvider(config);
-            default -> throw new IllegalArgumentException();
-        };
-    }
-}
-```
-
-#### 3.3. Configuration
-```yaml
-ai:
-  provider: "claude"  # claude, gpt-4, gemini
-  fallback: ["gpt-4", "gemini"]  # Auto-fallback order
-  claude:
-    apiKey: "${CLAUDE_API_KEY}"
-    model: "claude-sonnet-4-5"
-  gpt4:
-    apiKey: "${OPENAI_API_KEY}"
-    model: "gpt-4-turbo"
-  gemini:
-    apiKey: "${GEMINI_API_KEY}"
-    model: "gemini-pro"
-```
-
----
-
-### Phase 4: Automatic Code Application (10-12 hours)
+### Phase 3: Automatic Code Application (10-12 hours)
 **Priority:** ⭐⭐⭐⭐
 
 **Goal:** AI'nin önerdiği refactored code'u otomatik uygula
@@ -579,7 +517,7 @@ pragmite ./project --auto-refactor --auto-apply --git-commit
 
 ---
 
-### Phase 5: Result Caching System (6-8 hours)
+### Phase 4: Result Caching System (6-8 hours)
 **Priority:** ⭐⭐⭐⭐
 
 **Goal:** Cache AI responses to reduce API costs
@@ -626,7 +564,7 @@ public class AIResultCache {
 
 ---
 
-### Phase 6: .pragmite.yaml AI Configuration (4-5 hours)
+### Phase 5: .pragmite.yaml AI Configuration (4-5 hours)
 **Priority:** ⭐⭐⭐
 
 **Goal:** Tam AI konfigürasyon desteği
@@ -681,21 +619,6 @@ ai:
 
 ---
 
-### Phase 7: Performance Metrics & A/B Testing (8-10 hours)
-**Priority:** ⭐⭐⭐
-
-**Goal:** Refactored code'un gerçek performans iyileşmesini ölç
-
-**Features:**
-- [ ] JMH benchmark integration
-- [ ] Before/after execution time
-- [ ] Memory usage comparison
-- [ ] Complexity metrics
-- [ ] Test coverage impact
-- [ ] A/B test framework
-
----
-
 ## 🎯 Current Focus (Updated)
 
 **COMPLETED:** ✅ Phase 0, 1, 2 (v1.4.0)
@@ -703,10 +626,9 @@ ai:
 **NOW:** Planning v1.5.0 features
 
 **NEXT (v1.5.0):**
-1. Multi-Provider AI Support (claude + gpt-4 + gemini)
-2. Automatic Code Application
-3. Result Caching System
-4. Full .pragmite.yaml AI configuration
+1. Automatic Code Application (PRIMARY FOCUS)
+2. Result Caching System
+3. Full .pragmite.yaml AI configuration
 
 ---
 

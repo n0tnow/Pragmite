@@ -20,9 +20,11 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    - name: Download Pragmite
+    - name: Build Pragmite
       run: |
-        wget https://github.com/n0tnow/Pragmite/releases/latest/download/pragmite-core.jar -O pragmite-core.jar
+        cd pragmite-core
+        mvn clean package -DskipTests
+        cp target/pragmite-core-1.4.0.jar ../pragmite-core.jar
 
     - name: Run Pragmite Analysis
       run: |
