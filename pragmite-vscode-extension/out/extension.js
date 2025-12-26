@@ -44,6 +44,7 @@ const quickFixProvider_1 = require("./quickFixProvider");
 const decorationProvider_1 = require("./decorationProvider");
 const reportGenerator_1 = require("./reportGenerator");
 const webServer_1 = require("./webServer");
+const autoApplyPanel_1 = require("./autoApplyPanel");
 let pragmiteService;
 let diagnosticProvider;
 let treeViewProvider;
@@ -108,6 +109,11 @@ function activate(context) {
     }));
     context.subscriptions.push(vscode.commands.registerCommand('pragmite.openDashboard', () => {
         vscode.env.openExternal(vscode.Uri.parse(webServer.getUrl()));
+    }));
+    // v1.5.0 - Auto-Apply Panel
+    context.subscriptions.push(vscode.commands.registerCommand('pragmite.openAutoApplyPanel', () => {
+        const jarPath = pragmiteService.getJarPath();
+        autoApplyPanel_1.AutoApplyPanel.createOrShow(context.extensionPath, jarPath);
     }));
     // Register new commands
     context.subscriptions.push(vscode.commands.registerCommand('pragmite.showRefactoringSuggestion', (data) => {

@@ -8,6 +8,7 @@ import { PragmiteDecorationProvider } from './decorationProvider';
 import { AnalysisResult } from './models';
 import { generateReportHtml } from './reportGenerator';
 import { PragmiteWebServer } from './webServer';
+import { AutoApplyPanel } from './autoApplyPanel';
 
 let pragmiteService: PragmiteService;
 let diagnosticProvider: DiagnosticProvider;
@@ -98,6 +99,14 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('pragmite.openDashboard', () => {
             vscode.env.openExternal(vscode.Uri.parse(webServer.getUrl()));
+        })
+    );
+
+    // v1.5.0 - Auto-Apply Panel
+    context.subscriptions.push(
+        vscode.commands.registerCommand('pragmite.openAutoApplyPanel', () => {
+            const jarPath = pragmiteService.getJarPath();
+            AutoApplyPanel.createOrShow(context.extensionPath, jarPath);
         })
     );
 

@@ -39,7 +39,7 @@ const path = __importStar(require("path"));
 const child_process = __importStar(require("child_process"));
 class PragmiteService {
     constructor(context) {
-        this.jarPath = path.join(context.extensionPath, 'lib', 'pragmite-core-1.2.0.jar');
+        this.jarPath = path.join(context.extensionPath, 'lib', 'pragmite-core-1.5.0.jar');
         const config = vscode.workspace.getConfiguration('pragmite');
         this.javaPath = config.get('javaPath', 'java');
         this.outputChannel = vscode.window.createOutputChannel('Pragmite');
@@ -138,6 +138,12 @@ class PragmiteService {
                 reject(error);
             });
         });
+    }
+    /**
+     * Get JAR path for external use (v1.5.0)
+     */
+    getJarPath() {
+        return this.jarPath;
     }
     /**
      * Show output channel

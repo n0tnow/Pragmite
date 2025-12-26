@@ -9,7 +9,7 @@ export class PragmiteService {
     private outputChannel: vscode.OutputChannel;
 
     constructor(context: vscode.ExtensionContext) {
-        this.jarPath = path.join(context.extensionPath, 'lib', 'pragmite-core-1.4.0.jar');
+        this.jarPath = path.join(context.extensionPath, 'lib', 'pragmite-core-1.5.0.jar');
         const config = vscode.workspace.getConfiguration('pragmite');
         this.javaPath = config.get('javaPath', 'java');
         this.outputChannel = vscode.window.createOutputChannel('Pragmite');
@@ -127,6 +127,13 @@ export class PragmiteService {
                 reject(error);
             });
         });
+    }
+
+    /**
+     * Get JAR path for external use (v1.5.0)
+     */
+    getJarPath(): string {
+        return this.jarPath;
     }
 
     /**
