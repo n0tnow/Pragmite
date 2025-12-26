@@ -44,28 +44,30 @@
 
 ---
 
+- [x] **Code Applicator (v0.6)**
+  - [x] Create `CodeApplicator.java` - Main application engine
+  - [x] Implement apply() method
+  - [x] Integrate BackupManager
+  - [x] Integrate CompilationValidator
+  - [x] Integrate ASTReplacer
+  - [x] Add dry-run support
+  - [x] Add rollback on failure
+  - [x] Add batch processing support
+  - [x] Add fallback strategy
+
+---
+
 ### 🔄 In Progress
 
-- [ ] **Code Applicator (v0.6)** - CURRENT
-  - [ ] Create `CodeApplicator.java` - Main application engine
-  - [ ] Implement apply() method
-  - [ ] Integrate BackupManager
-  - [ ] Integrate CompilationValidator
-  - [ ] Integrate ASTReplacer
-  - [ ] Add dry-run support
-  - [ ] Add rollback on failure
+- [ ] **CLI Integration (v0.7)** - CURRENT
+  - [ ] Add `--auto-apply` flag to PragmiteCLI
+  - [ ] Add `--dry-run` flag
+  - [ ] Add `--backup` / `--no-backup` flags
+  - [ ] Integrate with existing `handleAiAnalysis()`
 
 ---
 
 ### 📝 Pending Tasks
-
-- [ ] **CLI Integration (v0.7)**
-  - [ ] Add `--auto-apply` flag to PragmiteCLI
-  - [ ] Add `--dry-run` flag
-  - [ ] Add `--backup` / `--no-backup` flags
-  - [ ] Add `--interactive` flag
-  - [ ] Add `--rollback-on-failure` flag
-  - [ ] Integrate with existing `handleAiAnalysis()`
 
 - [ ] **Workflow Integration (v0.8)**
   - [ ] Modify AnalysisEngine to support auto-apply
@@ -120,10 +122,10 @@
 ## 📊 Progress Tracking
 
 ### Overall Progress
-- **Completed:** 6 sections (Design, Models, Backup, Validation, AST, Results)
-- **In Progress:** 1 section (Code Applicator)
-- **Pending:** 8 sections
-- **Total Progress:** ~43% (6/14 sections)
+- **Completed:** 7 sections (Design, Models, Backup, Validation, AST, Results, Applicator)
+- **In Progress:** 1 section (CLI Integration)
+- **Pending:** 7 sections
+- **Total Progress:** ~50% (7/14 sections)
 
 ### Version History
 - **v0.1** (Dec 26, 2025) - Core models created
@@ -131,13 +133,14 @@
 - **v0.3** (Dec 26, 2025) - Validation system complete
 - **v0.4** (Dec 26, 2025) - AST replacement engine complete
 - **v0.5** (Dec 26, 2025) - Application result models complete
-- **v0.6** (In Progress) - Code Applicator main engine
+- **v0.6** (Dec 26, 2025) - Code Applicator main engine complete
+- **v0.7** (In Progress) - CLI Integration
 
 ---
 
 ## 🎯 Current Focus
 
-**NOW:** Implementing `ASTReplacer.java` for intelligent code replacement
+**NOW:** Implementing CLI Integration for auto-apply flags
 
 **NEXT:**
 1. Create ApplicationResult models
