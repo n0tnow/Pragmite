@@ -45,6 +45,7 @@ const decorationProvider_1 = require("./decorationProvider");
 const reportGenerator_1 = require("./reportGenerator");
 const webServer_1 = require("./webServer");
 const autoApplyPanel_1 = require("./autoApplyPanel");
+const diffPreviewPanel_1 = require("./diffPreviewPanel");
 let pragmiteService;
 let diagnosticProvider;
 let treeViewProvider;
@@ -114,6 +115,14 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('pragmite.openAutoApplyPanel', () => {
         const jarPath = pragmiteService.getJarPath();
         autoApplyPanel_1.AutoApplyPanel.createOrShow(context.extensionPath, jarPath);
+    }));
+    // v1.6.0 - Diff Preview Panel
+    context.subscriptions.push(vscode.commands.registerCommand('pragmite.showDiffPreview', (args) => {
+        const fileName = args?.fileName || 'Example.java';
+        const beforeCode = args?.beforeCode || 'public class Example {\n  // old code\n}';
+        const afterCode = args?.afterCode || 'public class Example {\n  // new code\n}';
+        const refactoringType = args?.refactoringType || 'Refactoring';
+        diffPreviewPanel_1.DiffPreviewPanel.createOrShow(context.extensionPath, fileName, beforeCode, afterCode, refactoringType);
     }));
     // Register new commands
     context.subscriptions.push(vscode.commands.registerCommand('pragmite.showRefactoringSuggestion', (data) => {

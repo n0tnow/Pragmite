@@ -9,6 +9,7 @@ import { AnalysisResult } from './models';
 import { generateReportHtml } from './reportGenerator';
 import { PragmiteWebServer } from './webServer';
 import { AutoApplyPanel } from './autoApplyPanel';
+import { DiffPreviewPanel } from './diffPreviewPanel';
 
 let pragmiteService: PragmiteService;
 let diagnosticProvider: DiagnosticProvider;
@@ -107,6 +108,24 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('pragmite.openAutoApplyPanel', () => {
             const jarPath = pragmiteService.getJarPath();
             AutoApplyPanel.createOrShow(context.extensionPath, jarPath);
+        })
+    );
+
+    // v1.6.0 - Diff Preview Panel
+    context.subscriptions.push(
+        vscode.commands.registerCommand('pragmite.showDiffPreview', (args: any) => {
+            const fileName = args?.fileName || 'Example.java';
+            const beforeCode = args?.beforeCode || 'public class Example {\n  // old code\n}';
+            const afterCode = args?.afterCode || 'public class Example {\n  // new code\n}';
+            const refactoringType = args?.refactoringType || 'Refactoring';
+
+            DiffPreviewPanel.createOrShow(
+                context.extensionPath,
+                fileName,
+                beforeCode,
+                afterCode,
+                refactoringType
+            );
         })
     );
 

@@ -45,6 +45,10 @@
       {
         "command": "pragmite.openAutoApplyPanel",
         "title": "Pragmite: Open Auto-Apply Panel (v1.5.0)"
+      },
+      {
+        "command": "pragmite.showDiffPreview",
+        "title": "Pragmite: Show Diff Preview (v1.6.0)"
       }
     ],
     "configuration": {
@@ -105,7 +109,10 @@
     "typescript": "^5.9.3",
     "vsce": "^2.15.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "diff": "^8.0.2",
+    "monaco-editor": "^0.55.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pragmite/pragmite-vscode"
