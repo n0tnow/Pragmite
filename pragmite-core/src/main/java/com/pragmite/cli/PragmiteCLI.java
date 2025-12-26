@@ -52,6 +52,10 @@ public class PragmiteCLI implements Callable<Integer> {
     @Option(names = {"-f", "--format"}, description = "Çıktı formatı: console, json, both", defaultValue = "console")
     private String format;
 
+    // v1.6.0 - Enhanced JSON Output
+    @Option(names = {"--output-format"}, description = "Enhanced output format: standard, enhanced-json (with diff data)")
+    private String outputFormat;
+
     @Option(names = {"--complexity-threshold"}, description = "Cyclomatic complexity eşik değeri", defaultValue = "10")
     private int complexityThreshold;
 

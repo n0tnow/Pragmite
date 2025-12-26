@@ -108,6 +108,10 @@ export class AutoApplyPanel {
             args.push('--no-backup');
         }
 
+        if (options.interactive) {
+            args.push('--interactive');
+        }
+
         // Set API key from environment or config
         const apiKey = process.env.CLAUDE_API_KEY ||
                       vscode.workspace.getConfiguration('pragmite').get('claudeApiKey');
@@ -423,6 +427,10 @@ export class AutoApplyPanel {
                 <input type="checkbox" id="createBackup" checked>
                 <label for="createBackup">Create backups before applying</label>
             </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="interactive">
+                <label for="interactive">Interactive mode (ask confirmation for each change) 🆕 v1.6.0</label>
+            </div>
         </div>
     </div>
 
@@ -445,12 +453,14 @@ export class AutoApplyPanel {
         document.getElementById('runAutoApply').addEventListener('click', () => {
             const dryRun = document.getElementById('dryRun').checked;
             const createBackup = document.getElementById('createBackup').checked;
+            const interactive = document.getElementById('interactive').checked;
 
             vscode.postMessage({
                 command: 'runAutoApply',
                 options: {
                     dryRun: dryRun,
-                    createBackup: createBackup
+                    createBackup: createBackup,
+                    interactive: interactive
                 }
             });
         });

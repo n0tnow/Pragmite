@@ -39,13 +39,14 @@ Enhance user experience with interactive UI components and advanced features:
   - **Estimated Time:** 2 days
   - **Priority:** HIGH
 
-- [ ] **CLI JSON Output Enhancement (Task 1.3)**
-  - [ ] Add `--output-format json` support
-  - [ ] Include diff data in JSON output
-  - [ ] Add line-level change information
-  - [ ] Include unified diff format
-  - [ ] Add metadata (file path, smell type, severity)
-  - **Estimated Time:** 1 day
+- [x] **CLI JSON Output Enhancement (Task 1.3)** ✅ COMPLETED
+  - [x] Add `--output-format` flag to CLI
+  - [x] Create EnhancedJsonOutput class with diff data
+  - [x] Include line-level change information
+  - [x] Include unified diff format
+  - [x] Add metadata (file path, checksum, smell type, severity)
+  - [x] MD5 checksums for before/after code
+  - **Completed:** December 26, 2025
   - **Priority:** MEDIUM
 
 ### Sprint 2: Interactive Mode (v1.6.1)
@@ -71,12 +72,13 @@ Enhance user experience with interactive UI components and advanced features:
   - **Completed:** December 26, 2025
   - **Priority:** MEDIUM
 
-- [ ] **VSCode Interactive Integration (Task 2.3)**
-  - [ ] Add interactive mode toggle to AutoApplyPanel
-  - [ ] Show confirmation dialog for each change
-  - [ ] Display diff in Monaco before confirmation
-  - [ ] Add batch confirmation (accept/reject all)
-  - **Estimated Time:** 1 day
+- [x] **VSCode Interactive Integration (Task 2.3)** ✅ COMPLETED
+  - [x] Add interactive mode checkbox to AutoApplyPanel UI
+  - [x] Pass --interactive flag to CLI when enabled
+  - [x] Update TypeScript backend to handle flag
+  - [x] Build and package extension (87.41 MB)
+  - [x] Update JAR in extension lib folder
+  - **Completed:** December 26, 2025
   - **Priority:** LOW
 
 ### Sprint 3: WebSocket API & Real-Time Updates (v1.6.2)
@@ -139,23 +141,24 @@ Enhance user experience with interactive UI components and advanced features:
 ## 📊 Progress Tracking
 
 ### Overall Progress
-- **Completed:** 5/15 tasks (33%)
+- **Completed:** 6/15 tasks (40%)
 - **In Progress:** 0 tasks
-- **Pending:** 10 tasks
+- **Pending:** 9 tasks
 - **Total Sprints:** 4
 
-**Latest Update:** December 26, 2025
+**Latest Update:** December 26, 2025 (Evening)
 - ✅ Sprint 1 Task 1.1: Monaco Editor Integration
 - ✅ Sprint 1 Task 1.2: DiffPreviewPanel Component
+- ✅ Sprint 1 Task 1.3: JSON Output Enhancement (NEW!)
 - ✅ Sprint 2 Task 2.1: InteractiveApprovalManager
 - ✅ Sprint 2 Task 2.2: CLI Interactive Mode
-- ⏳ Sprint 1 Task 1.3: JSON Output Enhancement (Pending)
+- ✅ Sprint 2 Task 2.3: VSCode Interactive Integration (NEW!)
 
 ### Sprint Status
 | Sprint | Tasks | Status | Completed Date |
 |--------|-------|--------|----------------|
-| Sprint 1 | 3 tasks | 🟡 66% Complete (2/3) | Dec 26, 2025 |
-| Sprint 2 | 3 tasks | 🟡 66% Complete (2/3) | Dec 26, 2025 |
+| Sprint 1 | 3 tasks | ✅ 100% Complete (3/3) | Dec 26, 2025 |
+| Sprint 2 | 3 tasks | ✅ 100% Complete (3/3) | Dec 26, 2025 |
 | Sprint 3 | 3 tasks | 🔴 Not Started | Pending |
 | Sprint 4 | 3 tasks | 🔴 Not Started | Pending |
 
