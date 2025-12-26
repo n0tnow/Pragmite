@@ -154,6 +154,10 @@ public class PragmiteCLI implements Callable<Integer> {
     @Option(names = {"--auto-apply"}, description = "Automatically apply AI-generated refactored code to source files")
     private boolean autoApply;
 
+    // v1.6.0 - Interactive Mode (Phase 4)
+    @Option(names = {"--interactive"}, description = "Interactive mode: ask for confirmation before applying each change")
+    private boolean interactive;
+
     @Override
     public Integer call() throws Exception {
         // Initialize database connection if needed
