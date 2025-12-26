@@ -473,7 +473,7 @@ java -jar pragmite-core-1.4.0.jar /path/to/project \
 
 ---
 
-## 🚀 v1.5.0 - Automatic Code Application (PLANNED)
+## 🚀 v1.5.0 - Auto-Apply & Performance Metrics (PLANNED)
 
 **Target Release:** Q1 2026
 **Priority:** ⭐⭐⭐⭐⭐
@@ -619,6 +619,134 @@ ai:
 
 ---
 
+### Phase 6: Performance Metrics & A/B Testing (8-10 hours)
+**Priority:** ⭐⭐⭐⭐⭐
+
+**Goal:** Refactored code'un gerçek performans iyileşmesini ölç
+
+**Features:**
+- [ ] JMH benchmark integration
+- [ ] Before/after execution time comparison
+- [ ] Memory usage comparison
+- [ ] Complexity metrics (cyclomatic, cognitive)
+- [ ] Test coverage impact analysis
+- [ ] A/B test framework for validating improvements
+- [ ] Performance regression detection
+- [ ] Automated benchmark reports
+
+**Implementation:**
+
+#### 6.1. JMH Benchmark Integration
+```java
+// src/main/java/com/pragmite/metrics/PerformanceBenchmark.java
+@State(Scope.Benchmark)
+public class PerformanceBenchmark {
+    @Benchmark
+    public void benchmarkOriginal(Blackhole bh) {
+        // Run original code
+        bh.consume(originalMethod());
+    }
+
+    @Benchmark
+    public void benchmarkRefactored(Blackhole bh) {
+        // Run refactored code
+        bh.consume(refactoredMethod());
+    }
+}
+```
+
+#### 6.2. Metrics Comparison
+```java
+public class MetricsComparator {
+    public ComparisonResult compare(String originalCode, String refactoredCode) {
+        // Execution time
+        long beforeTime = measureExecutionTime(originalCode);
+        long afterTime = measureExecutionTime(refactoredCode);
+
+        // Memory usage
+        long beforeMemory = measureMemoryUsage(originalCode);
+        long afterMemory = measureMemoryUsage(refactoredCode);
+
+        // Complexity
+        int beforeComplexity = calculateComplexity(originalCode);
+        int afterComplexity = calculateComplexity(refactoredCode);
+
+        return new ComparisonResult(
+            timeImprovement: calculateImprovement(beforeTime, afterTime),
+            memoryImprovement: calculateImprovement(beforeMemory, afterMemory),
+            complexityReduction: beforeComplexity - afterComplexity
+        );
+    }
+}
+```
+
+#### 6.3. HTML Report Integration
+```html
+<div class="performance-metrics">
+  <h4>📊 Performance Comparison</h4>
+  <table>
+    <tr>
+      <th>Metric</th>
+      <th>Before</th>
+      <th>After</th>
+      <th>Improvement</th>
+    </tr>
+    <tr>
+      <td>Execution Time</td>
+      <td>125ms</td>
+      <td>45ms</td>
+      <td class="positive">64% faster ⬆</td>
+    </tr>
+    <tr>
+      <td>Memory Usage</td>
+      <td>2.4MB</td>
+      <td>1.1MB</td>
+      <td class="positive">54% less ⬇</td>
+    </tr>
+    <tr>
+      <td>Cyclomatic Complexity</td>
+      <td>15</td>
+      <td>6</td>
+      <td class="positive">60% simpler ⬇</td>
+    </tr>
+  </table>
+</div>
+```
+
+#### 6.4. Automated Testing
+```java
+public class RefactoringValidator {
+    public ValidationResult validate(RefactoredCode refactored) {
+        // Compile both versions
+        boolean originalCompiles = compile(refactored.getOriginalCode());
+        boolean refactoredCompiles = compile(refactored.getRefactoredCode());
+
+        // Run tests
+        TestResults originalTests = runTests(refactored.getOriginalCode());
+        TestResults refactoredTests = runTests(refactored.getRefactoredCode());
+
+        // Compare performance
+        PerformanceMetrics originalPerf = benchmark(refactored.getOriginalCode());
+        PerformanceMetrics refactoredPerf = benchmark(refactored.getRefactoredCode());
+
+        return new ValidationResult(
+            compilesSuccessfully: refactoredCompiles,
+            testsPass: refactoredTests.allPassed(),
+            performanceImproved: refactoredPerf.isBetterThan(originalPerf),
+            noRegressions: !hasRegressions(originalTests, refactoredTests)
+        );
+    }
+}
+```
+
+**Expected Benefits:**
+- Quantifiable evidence that refactoring improves code
+- Catch performance regressions early
+- Build confidence in AI-generated refactorings
+- Data-driven decision making
+
+---
+
 ## 🎯 Current Focus (Updated)
 
 **COMPLETED:** ✅ Phase 0, 1, 2 (v1.4.0)
@@ -629,6 +757,7 @@ ai:
 1. Automatic Code Application (PRIMARY FOCUS)
 2. Result Caching System
 3. Full .pragmite.yaml AI configuration
+4. Performance Metrics & A/B Testing (CRITICAL FEATURE)
 
 ---
 
