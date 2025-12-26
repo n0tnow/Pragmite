@@ -127,6 +127,16 @@ public class PragmiteCLI implements Callable<Integer> {
     @Option(names = {"--list-rollbacks"}, description = "Geri alınabilir düzeltme işlemlerini listele")
     private boolean listRollbacks;
 
+    // v1.5.0 - File-Based Rollback Options (Phase 3)
+    @Option(names = {"--list-backups"}, description = "List all file-based backups for auto-apply operations")
+    private boolean listBackups;
+
+    @Option(names = {"--list-backups-for"}, description = "List backups for a specific file")
+    private String listBackupsFor;
+
+    @Option(names = {"--rollback-file-backup"}, description = "Rollback file to latest auto-apply backup")
+    private String rollbackFileBackup;
+
     // v1.4.0 - AI-Powered Error Analysis Options
     @Option(names = {"--generate-ai-prompts"}, description = "Generate AI-powered analysis with prompts for each issue")
     private boolean generateAiPrompts;
@@ -139,6 +149,10 @@ public class PragmiteCLI implements Callable<Integer> {
 
     @Option(names = {"--claude-api-key"}, description = "Claude API key (or use CLAUDE_API_KEY environment variable)")
     private String claudeApiKey;
+
+    // v1.5.0 - Auto-Apply Options (Phase 3)
+    @Option(names = {"--auto-apply"}, description = "Automatically apply AI-generated refactored code to source files")
+    private boolean autoApply;
 
     @Override
     public Integer call() throws Exception {
@@ -179,9 +193,14 @@ public class PragmiteCLI implements Callable<Integer> {
                 return 0;
             }
 
-            // Handle rollback operations
+            // Handle rollback operations (v1.3.0 - database-based)
             if (dbConnection != null && (rollbackLast || rollbackId != null || rollbackFile != null || listRollbacks)) {
                 return handleRollbackOperations(dbConnection);
+            }
+
+            // Handle file-based rollback operations (v1.5.0 - auto-apply backups)
+            if (listBackups || listBackupsFor != null || rollbackFileBackup != null) {
+                return handleFileBackupOperations();
             }
 
             // Handle history/trend display
@@ -231,8 +250,9 @@ public class PragmiteCLI implements Callable<Integer> {
             AnalysisResult result = analyzer.analyze();
 
             // v1.4.0: Generate AI analysis if requested (do this before reporting so HTML can include it)
+            // v1.5.0: Also run AI analysis if auto-refactor or auto-apply is enabled
             List<AIAnalysisResult> aiResults = null;
-            if (generateAiPrompts) {
+            if (generateAiPrompts || autoRefactor || autoApply) {
                 aiResults = handleAiAnalysis(result);
             }
 
@@ -562,6 +582,148 @@ public class PragmiteCLI implements Callable<Integer> {
     }
 
     /**
+     * Handle file-based backup operations (v1.5.0 - auto-apply backups).
+     */
+    private int handleFileBackupOperations() {
+        try {
+            // Create BackupManager and RollbackManager
+            com.pragmite.autofix.BackupManager backupManager = new com.pragmite.autofix.BackupManager(true);
+            com.pragmite.autofix.RollbackManager rollbackManager =
+                new com.pragmite.autofix.RollbackManager(null, backupManager);
+
+            // List all backups
+            if (listBackups) {
+                System.out.println("\n📦 File-Based Backups (Auto-Apply):");
+                System.out.println("Location: " + backupManager.getBackupDir());
+                System.out.println();
+
+                try (java.util.stream.Stream<Path> paths = java.nio.file.Files.list(backupManager.getBackupDir())) {
+                    java.util.List<Path> backups = paths
+                        .filter(p -> p.getFileName().toString().contains(".backup."))
+                        .sorted(java.util.Comparator.<Path, java.nio.file.attribute.FileTime>comparing(p -> {
+                            try {
+                                return java.nio.file.Files.getLastModifiedTime(p);
+                            } catch (java.io.IOException e) {
+                                return java.nio.file.attribute.FileTime.fromMillis(0);
+                            }
+                        }).reversed())
+                        .toList();
+
+                    if (backups.isEmpty()) {
+                        System.out.println("No backups found.");
+                        return 0;
+                    }
+
+                    System.out.println("Total backups: " + backups.size());
+                    System.out.println();
+                    System.out.printf("%-40s %-20s %-10s%n", "File", "Created", "Size");
+                    System.out.println("─".repeat(75));
+
+                    for (Path backup : backups) {
+                        String fileName = backup.getFileName().toString();
+                        String originalFile = fileName.substring(0, fileName.indexOf(".backup."));
+                        java.nio.file.attribute.BasicFileAttributes attrs =
+                            java.nio.file.Files.readAttributes(backup, java.nio.file.attribute.BasicFileAttributes.class);
+                        long size = java.nio.file.Files.size(backup);
+
+                        String timestamp = java.time.format.DateTimeFormatter
+                            .ofPattern("yyyy-MM-dd HH:mm:ss")
+                            .withZone(java.time.ZoneId.systemDefault())
+                            .format(attrs.creationTime().toInstant());
+
+                        String sizeStr;
+                        if (size < 1024) {
+                            sizeStr = size + " B";
+                        } else if (size < 1024 * 1024) {
+                            sizeStr = String.format("%.1f KB", size / 1024.0);
+                        } else {
+                            sizeStr = String.format("%.1f MB", size / (1024.0 * 1024.0));
+                        }
+
+                        System.out.printf("%-40s %-20s %-10s%n",
+                            originalFile.length() > 37 ? originalFile.substring(0, 37) + "..." : originalFile,
+                            timestamp,
+                            sizeStr);
+                    }
+                } catch (java.io.IOException e) {
+                    System.err.println("Error reading backups: " + e.getMessage());
+                    return 1;
+                }
+
+                return 0;
+            }
+
+            // List backups for specific file
+            if (listBackupsFor != null) {
+                System.out.println("\n📦 Backups for: " + listBackupsFor);
+                System.out.println();
+
+                java.util.List<com.pragmite.autofix.RollbackManager.FileBackupInfo> backups =
+                    rollbackManager.listFileBackups(listBackupsFor);
+
+                if (backups.isEmpty()) {
+                    System.out.println("No backups found for: " + listBackupsFor);
+                    return 0;
+                }
+
+                System.out.println("Total backups: " + backups.size());
+                System.out.println();
+                System.out.printf("%-20s %-10s %-50s%n", "Created", "Size", "Backup File");
+                System.out.println("─".repeat(85));
+
+                for (com.pragmite.autofix.RollbackManager.FileBackupInfo backup : backups) {
+                    System.out.printf("%-20s %-10s %-50s%n",
+                        backup.getFormattedTimestamp(),
+                        backup.getFormattedSize(),
+                        backup.getBackupPath().getFileName());
+                }
+
+                System.out.println();
+                System.out.println("💡 To rollback: --rollback-file-backup " + listBackupsFor);
+
+                return 0;
+            }
+
+            // Rollback file to latest backup
+            if (rollbackFileBackup != null) {
+                Path targetFile = Path.of(rollbackFileBackup).toAbsolutePath();
+
+                if (!java.nio.file.Files.exists(targetFile)) {
+                    System.err.println("❌ File not found: " + rollbackFileBackup);
+                    return 1;
+                }
+
+                System.out.println("\n🔄 Rolling back: " + rollbackFileBackup);
+
+                com.pragmite.autofix.RollbackManager.FileRollbackResult result =
+                    rollbackManager.rollbackToLatestFileBackup(targetFile);
+
+                if (result.isSuccess()) {
+                    System.out.println("✅ Rollback successful!");
+                    System.out.println("   File: " + result.getTargetFile().getFileName());
+                    System.out.println("   Restored from: " + result.getBackupPath().getFileName());
+                    System.out.println("   Safety backup created: " +
+                        result.getSafetyBackup().getBackupPath().getFileName());
+                } else {
+                    System.err.println("❌ Rollback failed: " + result.getErrorMessage());
+                    return 1;
+                }
+
+                return 0;
+            }
+
+        } catch (Exception e) {
+            System.err.println("\n❌ Error: " + e.getMessage());
+            if (verbose) {
+                e.printStackTrace();
+            }
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
      * Handle AI-powered analysis (v1.4.0).
      * Returns the list of AI analysis results for use in HTML report.
      */
@@ -600,6 +762,11 @@ public class PragmiteCLI implements Callable<Integer> {
             }
 
             System.out.println("   Generated " + aiResults.size() + " AI analysis reports.\n");
+
+            // v1.5.0 Phase 3: Auto-apply refactored code if enabled
+            if (autoApply && apiConfig != null && apiConfig.isValid()) {
+                handleAutoApply(aiResults, result);
+            }
 
             // Display AI analysis in console
             for (AIAnalysisResult aiResult : aiResults) {
@@ -652,6 +819,98 @@ public class PragmiteCLI implements Callable<Integer> {
         json.append("}\n");
 
         java.nio.file.Files.writeString(outputPath, json.toString());
+    }
+
+    /**
+     * Handle auto-apply of refactored code (v1.5.0 Phase 3).
+     */
+    private void handleAutoApply(List<AIAnalysisResult> aiResults, AnalysisResult analysisResult) {
+        try {
+            System.out.println("\n🔧 Applying AI-Generated Refactorings...");
+
+            // Create CodeApplicator with settings from CLI flags
+            boolean enableBackup = !noBackup;
+            com.pragmite.autofix.CodeApplicator applicator =
+                new com.pragmite.autofix.CodeApplicator(dryRun, enableBackup);
+
+            if (dryRun) {
+                System.out.println("   DRY RUN MODE - No files will be modified\n");
+            }
+
+            int totalApplied = 0;
+            int totalFailed = 0;
+            int totalSkipped = 0;
+
+            // Apply each refactored code
+            for (AIAnalysisResult aiResult : aiResults) {
+                if (!aiResult.hasRefactoredCode()) {
+                    continue; // Skip if no refactored code available
+                }
+
+                com.pragmite.ai.RefactoredCode refactored = aiResult.getRefactoredCode();
+                CodeSmell smell = aiResult.getOriginalSmell();
+
+                // Get source file path - smell.getFilePath() is relative to current directory
+                Path sourceFile = Path.of(smell.getFilePath()).toAbsolutePath();
+
+                // If file doesn't exist, try resolving from projectDir
+                if (!java.nio.file.Files.exists(sourceFile)) {
+                    sourceFile = projectDir.toPath().resolve(smell.getFilePath());
+                }
+
+                if (!java.nio.file.Files.exists(sourceFile)) {
+                    System.err.println("   ⚠️  File not found: " + smell.getFilePath());
+                    totalSkipped++;
+                    continue;
+                }
+
+                // Apply refactoring
+                System.out.print("   Applying to " + smell.getFilePath() + "... ");
+
+                com.pragmite.autofix.ApplicationResult result = applicator.apply(refactored, sourceFile);
+
+                if (result.isSuccess()) {
+                    System.out.println("✅ Success");
+                    totalApplied++;
+
+                    if (result.getMetrics() != null && verbose) {
+                        System.out.println("      " + result.getMetrics());
+                    }
+                } else if (result.wasSkipped()) {
+                    System.out.println("⏭️  Skipped");
+                    totalSkipped++;
+                } else {
+                    System.out.println("❌ Failed");
+                    totalFailed++;
+
+                    if (verbose && !result.getErrors().isEmpty()) {
+                        for (String error : result.getErrors()) {
+                            System.err.println("      Error: " + error);
+                        }
+                    }
+                }
+            }
+
+            // Summary
+            System.out.println("\n📊 Auto-Apply Summary:");
+            System.out.println("   ✅ Successfully applied: " + totalApplied);
+            System.out.println("   ❌ Failed: " + totalFailed);
+            System.out.println("   ⏭️  Skipped: " + totalSkipped);
+
+            if (totalApplied > 0 && enableBackup) {
+                System.out.println("\n💾 Backups saved to: " + applicator.getBackupDir());
+            }
+
+            if (dryRun) {
+                System.out.println("\n💡 Run without --dry-run to apply changes");
+            }
+
+        } catch (Exception e) {
+            System.err.println("\n❌ Auto-apply error: " + e.getMessage());
+            if (verbose) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

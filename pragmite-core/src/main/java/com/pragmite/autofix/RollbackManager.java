@@ -13,18 +13,131 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Rollback Manager for Pragmite v1.3.0
- * Manages rollback of auto-fix operations using database-tracked backups.
+ * Rollback Manager for Pragmite v1.3.0 + v1.5.0
+ * Manages rollback of auto-fix operations using:
+ * - Database-tracked backups (v1.3.0 - existing auto-fix)
+ * - File-based backups (v1.5.0 - new auto-apply)
  */
 public class RollbackManager {
 
     private static final Logger logger = LoggerFactory.getLogger(RollbackManager.class);
 
     private final Connection connection;
+    private final BackupManager backupManager;
 
     public RollbackManager(Connection connection) {
-        this.connection = connection;
+        this(connection, null);
     }
+
+    public RollbackManager(Connection connection, BackupManager backupManager) {
+        this.connection = connection;
+        this.backupManager = backupManager;
+    }
+
+    // ============================================================================
+    // v1.5.0 File-Based Rollback Methods (for auto-apply feature)
+    // ============================================================================
+
+    /**
+     * List all file-based backups for a specific file (v1.5.0).
+     */
+    public List<FileBackupInfo> listFileBackups(String fileName) throws IOException {
+        if (backupManager == null || !backupManager.isEnabled()) {
+            throw new IllegalStateException("BackupManager not available. File-based rollback requires backup manager.");
+        }
+
+        List<FileBackupInfo> backups = new ArrayList<>();
+        Path backupDir = backupManager.getBackupDir();
+
+        if (!Files.exists(backupDir)) {
+            return backups;
+        }
+
+        String backupPrefix = fileName + ".backup.";
+
+        try (java.util.stream.Stream<Path> paths = Files.list(backupDir)) {
+            paths.filter(p -> p.getFileName().toString().startsWith(backupPrefix))
+                 .forEach(backupPath -> {
+                     try {
+                         FileBackupInfo info = createFileBackupInfo(backupPath, fileName);
+                         backups.add(info);
+                     } catch (IOException e) {
+                         logger.warn("Failed to read backup info: {}", backupPath, e);
+                     }
+                 });
+        }
+
+        // Sort by creation time (newest first)
+        backups.sort(java.util.Comparator.comparing(FileBackupInfo::getCreatedAt).reversed());
+
+        return backups;
+    }
+
+    /**
+     * Rollback a file to a specific backup (v1.5.0).
+     */
+    public FileRollbackResult rollbackToFileBackup(Path targetFile, Path backupPath) {
+        if (backupManager == null) {
+            return FileRollbackResult.failed("BackupManager not available");
+        }
+
+        try {
+            if (!Files.exists(backupPath)) {
+                return FileRollbackResult.failed("Backup file does not exist: " + backupPath);
+            }
+
+            if (!Files.exists(targetFile)) {
+                return FileRollbackResult.failed("Target file does not exist: " + targetFile);
+            }
+
+            // Create a safety backup of current state
+            Backup safetyBackup = backupManager.createBackup(targetFile);
+
+            // Restore from backup
+            Files.copy(backupPath, targetFile, StandardCopyOption.REPLACE_EXISTING);
+
+            logger.info("Rolled back {} from backup {}",
+                       targetFile.getFileName(), backupPath.getFileName());
+
+            return FileRollbackResult.success(targetFile, backupPath, safetyBackup);
+
+        } catch (IOException e) {
+            logger.error("Rollback failed: {}", targetFile, e);
+            return FileRollbackResult.failed("Rollback failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Rollback to the most recent file backup (v1.5.0).
+     */
+    public FileRollbackResult rollbackToLatestFileBackup(Path targetFile) throws IOException {
+        String fileName = targetFile.getFileName().toString();
+        List<FileBackupInfo> backups = listFileBackups(fileName);
+
+        if (backups.isEmpty()) {
+            return FileRollbackResult.failed("No backups found for: " + fileName);
+        }
+
+        FileBackupInfo latest = backups.get(0);
+        return rollbackToFileBackup(targetFile, latest.getBackupPath());
+    }
+
+    private FileBackupInfo createFileBackupInfo(Path backupPath, String originalFileName) throws IOException {
+        java.nio.file.attribute.BasicFileAttributes attrs =
+            Files.readAttributes(backupPath, java.nio.file.attribute.BasicFileAttributes.class);
+        long size = Files.size(backupPath);
+
+        return new FileBackupInfo(
+            originalFileName,
+            backupPath,
+            attrs.creationTime().toInstant(),
+            size
+        );
+    }
+
+    // ============================================================================
+    // v1.3.0 Database-Based Rollback Methods (existing auto-fix)
+    // ============================================================================
 
     /**
      * Rollback the last fix operation.
@@ -366,5 +479,126 @@ public class RollbackManager {
 
         public int getUnrestoredCount() { return unrestoredCount; }
         public void setUnrestoredCount(int unrestoredCount) { this.unrestoredCount = unrestoredCount; }
+    }
+
+    // ============================================================================
+    // v1.5.0 File-Based Rollback Models
+    // ============================================================================
+
+    /**
+     * Information about a file-based backup (v1.5.0).
+     */
+    public static class FileBackupInfo {
+        private final String originalFileName;
+        private final Path backupPath;
+        private final java.time.Instant createdAt;
+        private final long size;
+
+        public FileBackupInfo(String originalFileName, Path backupPath, java.time.Instant createdAt, long size) {
+            this.originalFileName = originalFileName;
+            this.backupPath = backupPath;
+            this.createdAt = createdAt;
+            this.size = size;
+        }
+
+        public String getOriginalFileName() {
+            return originalFileName;
+        }
+
+        public Path getBackupPath() {
+            return backupPath;
+        }
+
+        public java.time.Instant getCreatedAt() {
+            return createdAt;
+        }
+
+        public long getSize() {
+            return size;
+        }
+
+        public String getFormattedTimestamp() {
+            return java.time.format.DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(java.time.ZoneId.systemDefault())
+                .format(createdAt);
+        }
+
+        public String getFormattedSize() {
+            if (size < 1024) {
+                return size + " B";
+            } else if (size < 1024 * 1024) {
+                return String.format("%.1f KB", size / 1024.0);
+            } else {
+                return String.format("%.1f MB", size / (1024.0 * 1024.0));
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s | %s | %s | %s",
+                originalFileName,
+                getFormattedTimestamp(),
+                getFormattedSize(),
+                backupPath.getFileName());
+        }
+    }
+
+    /**
+     * Result of a file-based rollback operation (v1.5.0).
+     */
+    public static class FileRollbackResult {
+        private final boolean success;
+        private final Path targetFile;
+        private final Path backupPath;
+        private final Backup safetyBackup;
+        private final String errorMessage;
+
+        private FileRollbackResult(boolean success, Path targetFile, Path backupPath,
+                                  Backup safetyBackup, String errorMessage) {
+            this.success = success;
+            this.targetFile = targetFile;
+            this.backupPath = backupPath;
+            this.safetyBackup = safetyBackup;
+            this.errorMessage = errorMessage;
+        }
+
+        public static FileRollbackResult success(Path targetFile, Path backupPath, Backup safetyBackup) {
+            return new FileRollbackResult(true, targetFile, backupPath, safetyBackup, null);
+        }
+
+        public static FileRollbackResult failed(String errorMessage) {
+            return new FileRollbackResult(false, null, null, null, errorMessage);
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public Path getTargetFile() {
+            return targetFile;
+        }
+
+        public Path getBackupPath() {
+            return backupPath;
+        }
+
+        public Backup getSafetyBackup() {
+            return safetyBackup;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        @Override
+        public String toString() {
+            if (success) {
+                return String.format("FileRollbackResult{success=true, file=%s, backup=%s}",
+                    targetFile.getFileName(), backupPath.getFileName());
+            } else {
+                return String.format("FileRollbackResult{success=false, error=%s}", errorMessage);
+            }
+        }
     }
 }

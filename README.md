@@ -14,10 +14,12 @@
 > - **SQL Database** - Analiz geçmişi takibi (SQLite)
 > - **Auto-Fix Infrastructure** - Otomatik düzeltme altyapısı
 > - **Rollback System** - Güvenli geri alma sistemi
-> - **AI-Powered Analysis** 🆕 - AI prompts for Claude/GPT-4/Gemini
-- **Auto-Refactoring** 🆕 - AI-generated code improvements with Claude API
+> - **AI-Powered Analysis** - AI prompts for Claude/GPT-4/Gemini
+- **Auto-Refactoring** - AI-generated code improvements with Claude API
+- **Auto-Apply** 🆕 - Automatically apply AI refactorings with safety backups
+- **Rollback System** 🆕 - File-based rollback for auto-apply operations
 
-**Current Version:** v1.4.0 | **Release Date:** December 25, 2025
+**Current Version:** v1.5.0 | **Release Date:** December 26, 2025
 
 ---
 
@@ -176,26 +178,51 @@ java -jar pragmite-core-1.0.0.jar /path/to/java/project -f both -o report.json
 - `--auto-refactor` - 🆕 Automatically generate refactored code using Claude API
 - `--claude-api-key <key>` - 🆕 Claude API key (or use CLAUDE_API_KEY env var)
 
-**Auto-Refactoring Example (v1.4.0):**
+**Auto-Apply (v1.5.0):**
+- `--auto-apply` - 🆕 Automatically apply AI refactorings to source files
+- `--dry-run` - 🆕 Preview changes without modifying files
+- `--backup` / `--no-backup` - Control backup creation (enabled by default)
+
+**File-Based Rollback (v1.5.0):**
+- `--list-backups` - 🆕 List all file-based backups
+- `--list-backups-for <filename>` - 🆕 List backups for specific file
+- `--rollback-file-backup <filename>` - 🆕 Rollback to latest backup
+
+**Auto-Apply Example (v1.5.0):**
 ```bash
 # Set API key
 export CLAUDE_API_KEY="sk-ant-..."
 
-# Run analysis with auto-refactoring
-java -jar pragmite-core-1.4.0.jar ./my-project --generate-ai-prompts --auto-refactor --format html
+# Run analysis with AI refactoring + auto-apply
+java -jar pragmite-core-1.5.0.jar ./my-project --ai-analysis --auto-apply
 
-# View HTML report with before/after code comparison
-open pragmite-report.html
+# Output:
+# 🔧 Auto-Applying Refactorings...
+# [1/12] Applying: God Class (UserService.java:1)
+#   ✅ Applied successfully
+#   💾 Backup: UserService.java.backup.20251226045131
+# ...
+# 📊 Success rate: 83.3% (10/12 applied)
+
+# Preview without applying (dry-run)
+java -jar pragmite-core-1.5.0.jar ./my-project --ai-analysis --auto-apply --dry-run
+
+# List backups
+java -jar pragmite-core-1.5.0.jar --list-backups-for UserService.java
+
+# Rollback if needed
+java -jar pragmite-core-1.5.0.jar --rollback-file-backup UserService.java
 ```
 
 **Features:**
-- AI-generated refactored code for all detected code smells
-- Before/after comparison in HTML reports
-- Detailed explanations of changes
-- Benefits analysis (why refactored version is better)
-- Support for all code smell types
+- ✅ Automatic code application with safety backups
+- ✅ JavaParser validation before applying changes
+- ✅ Dry-run mode for preview
+- ✅ File-based rollback system
+- ✅ MD5 checksum verification
+- ✅ Automatic cleanup (keeps last 10 backups)
 
-📖 **Complete Guide:** See [docs/AUTO_REFACTORING_GUIDE.md](docs/AUTO_REFACTORING_GUIDE.md)
+📖 **Complete Guide:** See [docs/AUTO_APPLY_GUIDE.md](docs/AUTO_APPLY_GUIDE.md)
 
 ---
 
@@ -524,16 +551,28 @@ Pragmatic Score = (0.30 × DRY) + (0.25 × Orthogonality) +
 - ✅ Auto-Fix Infrastructure - Framework for automatic fixes
 - ✅ Rollback System - Undo automatic fixes safely with database backups
 
-**🚀 Faz 5 (v1.4.0 - Coming Soon):**
-- 🤖 AI-Powered Error Analysis - Detailed explanations with ready-to-use AI prompts (English)
-  - Root cause analysis for each code smell
-  - Impact assessment and recommendations
-  - Copy-paste prompts for Claude/GPT-4/Gemini
-  - Context-aware code snippets
-- 🔧 Fixer Implementations - Actual auto-fix implementations for all detectors
-- 📊 Advanced Analytics Dashboard - Web-based quality trends visualization
-- 🤝 Team Collaboration - Central database server for team-wide tracking
-- 🔌 IDE Deep Integration - Real-time analysis & quick-fixes in VSCode/IntelliJ
+**✅ Faz 5 (v1.4.0 - Completed):**
+- ✅ AI-Powered Error Analysis - Detailed explanations with ready-to-use AI prompts
+- ✅ Auto-Refactoring - AI-generated code improvements with Claude API
+- ✅ HTML Report Integration - Before/after code comparison in reports
+
+**✅ Phase 3 (v1.5.0 - Completed - December 26, 2025):**
+- ✅ Auto-Apply System - Automatically apply AI refactorings to source files
+- ✅ File-Based Backup - Timestamped backups with MD5 checksums
+- ✅ Compilation Validation - JavaParser syntax checking before apply
+- ✅ File-Based Rollback - Rollback auto-applied changes safely
+- ✅ Dry-Run Mode - Preview changes without modifying files
+- ✅ Automatic Cleanup - Keep last 10 backups per file
+
+**🚀 Phase 4 (v1.6.0+ - Planned):**
+- 🎨 VSCode Extension - Interactive sidebar with diff preview (Q1 2026)
+- 🌐 Web UI - Browser-based dashboard with Monaco Editor (Q2 2026)
+- 🔄 WebSocket API - Real-time progress updates
+- 🤝 Interactive Mode - User confirmation before each change
+- 📊 Advanced Reporting - JSON output, custom formats
+- 🧪 Strict Validation - javac-based semantic validation
+
+📖 **Full Stack UI Plan:** See [docs/FULL_STACK_UI_PLAN.md](docs/FULL_STACK_UI_PLAN.md)
 
 ---
 

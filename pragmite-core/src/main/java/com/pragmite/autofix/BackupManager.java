@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -154,7 +155,7 @@ public class BackupManager {
             }
 
             // Sort by creation time (newest first)
-            backups.sort(Comparator.comparing(p -> {
+            backups.sort(Comparator.<Path, FileTime>comparing(p -> {
                 try {
                     return Files.getLastModifiedTime(p);
                 } catch (IOException e) {
