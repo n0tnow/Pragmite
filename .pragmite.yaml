@@ -1,49 +1,54 @@
-# Pragmite Configuration File
-# Place this file in your project root or user home directory
+# Pragmite Configuration File v1.6.3
+# Documentation: https://github.com/n0tnow/Pragmite#configuration
 
-# Detection Thresholds
+# Custom thresholds for code smell detectors
 thresholds:
-  long_method: 30              # Lines of code in a method
-  long_parameter_list: 4       # Number of parameters
-  complexity: 10               # Cyclomatic complexity
-  nesting_depth: 4             # Maximum nesting level
-  large_class: 500             # Lines in a class
-  god_class_methods: 20        # Methods in a class
-  long_line: 120               # Characters per line
-  magic_numbers: 5             # Numeric literals in a method
-  string_literals: 3           # String literals in a method
+  cyclomaticComplexity: 15      # Maximum cyclomatic complexity
+  longMethod: 50                # Maximum method lines
+  largeClass.lines: 400         # Maximum class lines
+  largeClass.methods: 25        # Maximum methods per class
+  longParameterList: 5          # Maximum parameters
+  deepNesting: 5                # Maximum nesting depth
+  switchStatement: 7            # Maximum switch cases
+  tooManyLiterals.numeric: 7    # Maximum numeric literals
+  tooManyLiterals.string: 5     # Maximum string literals
+  lazyClass: 80                 # Minimum class lines
 
-# Refactoring Settings
-refactoring:
-  auto_apply: false            # Automatically apply refactorings
-  create_backups: true         # Create backups before refactoring
-  backup_retention: 10         # Number of backups to keep
-  run_tests: true              # Run tests after refactoring
-  rollback_on_failure: true    # Rollback if tests fail
+# Files/directories to exclude (glob patterns)
+exclude:
+  - "**/target/**"
+  - "**/build/**"
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/.idea/**"
+  - "**/.vscode/**"
+  - "**/test-output/**"
+  - "**/*Test.java"
+  - "**/*Tests.java"
+  - "**/*IT.java"
 
-# Performance Settings
-performance:
-  enable_caching: true         # Cache analysis results
-  enable_parallel: true        # Use parallel processing
-  thread_count: 4              # Number of threads (0 = auto)
-  enable_profiling: false      # Enable JFR profiling
+# Severity overrides (default is based on code smell type)
+# Options: ERROR, WARNING, INFO
+severity:
+  # DUPLICATED_CODE: ERROR
+  # MAGIC_NUMBER: WARNING
+  # UNUSED_VARIABLE: INFO
 
-# Output Settings
-output:
-  format: json                 # Output format: json, xml, html
-  verbose: false               # Verbose logging
-  generate_reports: true       # Generate HTML reports
+# Quality score weights (must sum to 1.0)
+qualityWeights:
+  dry: 0.30              # DRY (Don't Repeat Yourself)
+  orthogonality: 0.30    # Orthogonality (low coupling)
+  correctness: 0.25      # Correctness (no bugs)
+  performance: 0.15      # Performance (efficiency)
 
-# Exclusions
-exclusions:
-  paths:
-    - target
-    - build
-    - node_modules
-    - .git
-    - .idea
-    - .vscode
-  files:
-    - "*Test.java"
-    - "*Tests.java"
-    - "*IT.java"
+# Analysis options
+analysis:
+  incremental: false          # Enable incremental analysis (cache)
+  parallel: true              # Enable parallel analysis
+  maxThreads: 8               # Maximum threads for parallel analysis
+  reportFormat: json          # Report format: json, html, pdf, both
+
+  # CI/CD Quality Gate options
+  failOnCritical: true        # Exit with code 1 if critical issues found
+  minQualityScore: 70         # Minimum quality score (0-100)
+  maxCriticalIssues: 0        # Maximum critical issues (-1 = unlimited)
