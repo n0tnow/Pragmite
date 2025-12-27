@@ -293,6 +293,15 @@ analysis:
         public Boolean failOnCritical;
         public Integer minQualityScore;
         public Integer maxCriticalIssues;
+
+        // Setters for snake_case YAML compatibility (v1.6.3 - Config test fix)
+        public void setIncrementalAnalysis(Boolean incremental) { this.incremental = incremental; }
+        public void setParallelAnalysis(Boolean parallel) { this.parallel = parallel; }
+        public void setMaxThreads(Integer maxThreads) { this.maxThreads = maxThreads; }
+        public void setReportFormat(String reportFormat) { this.reportFormat = reportFormat; }
+        public void setFailOnCritical(Boolean failOnCritical) { this.failOnCritical = failOnCritical; }
+        public void setMinQualityScore(Integer minQualityScore) { this.minQualityScore = minQualityScore; }
+        public void setMaxCriticalIssues(Integer maxCriticalIssues) { this.maxCriticalIssues = maxCriticalIssues; }
     }
 
     /**
