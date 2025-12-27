@@ -24,7 +24,7 @@ jobs:
       run: |
         cd pragmite-core
         mvn clean package -DskipTests
-        cp target/pragmite-core-1.4.0.jar ../pragmite-core.jar
+        cp target/pragmite-core-1.5.0.jar ../pragmite-core.jar
 
     - name: Run Pragmite Analysis
       run: |
