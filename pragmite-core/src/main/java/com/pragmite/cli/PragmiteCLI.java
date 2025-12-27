@@ -18,6 +18,8 @@ import com.pragmite.autofix.RollbackManager;
 import com.pragmite.ai.AnalysisEngine;
 import com.pragmite.ai.AIAnalysisResult;
 import com.pragmite.websocket.ProgressWebSocketServer;
+import com.pragmite.validation.JavacValidator;
+import com.pragmite.validation.ValidationResult;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -169,6 +171,10 @@ public class PragmiteCLI implements Callable<Integer> {
 
     @Option(names = {"--websocket-port"}, description = "WebSocket server port", defaultValue = "8765")
     private int websocketPort;
+
+    // v1.6.3 - Strict Validation (Phase 4, Sprint 4)
+    @Option(names = {"--strict-validation"}, description = "Enable strict validation using javac compiler")
+    private boolean strictValidation;
 
     @Override
     public Integer call() throws Exception {
