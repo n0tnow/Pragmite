@@ -3,6 +3,7 @@ package com.pragmite.ai;
 import com.pragmite.model.CodeSmell;
 import com.pragmite.model.CodeSmellType;
 import com.pragmite.interactive.InteractiveApprovalManager;
+import com.pragmite.websocket.ProgressWebSocketServer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,8 +29,10 @@ public class AnalysisEngine {
 
     private final PromptGenerator promptGenerator;
     private final ContextExtractor contextExtractor;
-    private InteractiveApprovalManager approvalManager; // v1.6.3 - Integration Sprint
+    private InteractiveApprovalManager approvalManager; // v1.6.3 - Integration Sprint Task 2
     private boolean interactiveMode = false; // v1.6.3 - Enable/disable interactive approval
+    private ProgressWebSocketServer websocketServer; // v1.6.3 - Integration Sprint Task 3
+    private boolean progressBroadcastEnabled = false; // v1.6.3 - Enable/disable progress broadcast
 
     public AnalysisEngine() {
         this.promptGenerator = new PromptGenerator();
@@ -70,6 +73,63 @@ public class AnalysisEngine {
      */
     public InteractiveApprovalManager getApprovalManager() {
         return approvalManager;
+    }
+
+    /**
+     * Set WebSocket server for progress broadcasting.
+     * v1.6.3 - Integration Sprint Task 3
+     *
+     * @param server WebSocket server instance
+     */
+    public void setWebSocketServer(ProgressWebSocketServer server) {
+        this.websocketServer = server;
+        this.progressBroadcastEnabled = (server != null);
+    }
+
+    /**
+     * Get WebSocket server.
+     * v1.6.3 - Integration Sprint Task 3
+     */
+    public ProgressWebSocketServer getWebSocketServer() {
+        return websocketServer;
+    }
+
+    /**
+     * Check if progress broadcast is enabled.
+     * v1.6.3 - Integration Sprint Task 3
+     */
+    public boolean isProgressBroadcastEnabled() {
+        return progressBroadcastEnabled && websocketServer != null && websocketServer.hasActiveClients();
+    }
+
+    /**
+     * Broadcast progress update via WebSocket if enabled.
+     * v1.6.3 - Integration Sprint Task 3
+     *
+     * @param stage Analysis stage (e.g., "analysis", "refactoring")
+     * @param current Current progress
+     * @param total Total items
+     * @param message Progress message
+     */
+    public void broadcastProgress(String stage, int current, int total, String message) {
+        if (isProgressBroadcastEnabled()) {
+            websocketServer.broadcastProgress(stage, current, total, message);
+        }
+    }
+
+    /**
+     * Broadcast refactoring event via WebSocket if enabled.
+     * v1.6.3 - Integration Sprint Task 3
+     *
+     * @param type Event type
+     * @param fileName File name
+     * @param refactoringType Refactoring type
+     * @param status Status
+     */
+    public void broadcastRefactoringEvent(String type, String fileName, String refactoringType, String status) {
+        if (isProgressBroadcastEnabled()) {
+            websocketServer.broadcastRefactoringEvent(type, fileName, refactoringType, status);
+        }
     }
 
     /**
