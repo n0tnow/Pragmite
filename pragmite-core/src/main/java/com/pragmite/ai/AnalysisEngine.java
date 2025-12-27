@@ -2,6 +2,7 @@ package com.pragmite.ai;
 
 import com.pragmite.model.CodeSmell;
 import com.pragmite.model.CodeSmellType;
+import com.pragmite.interactive.InteractiveApprovalManager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,10 +28,48 @@ public class AnalysisEngine {
 
     private final PromptGenerator promptGenerator;
     private final ContextExtractor contextExtractor;
+    private InteractiveApprovalManager approvalManager; // v1.6.3 - Integration Sprint
+    private boolean interactiveMode = false; // v1.6.3 - Enable/disable interactive approval
 
     public AnalysisEngine() {
         this.promptGenerator = new PromptGenerator();
         this.contextExtractor = new ContextExtractor();
+    }
+
+    /**
+     * Enable interactive approval mode.
+     * When enabled, user will be prompted to approve each refactoring with diff preview.
+     * v1.6.3 - Integration Sprint Task 2
+     */
+    public void enableInteractiveMode() {
+        if (this.approvalManager == null) {
+            this.approvalManager = new InteractiveApprovalManager();
+        }
+        this.interactiveMode = true;
+    }
+
+    /**
+     * Disable interactive approval mode.
+     * v1.6.3 - Integration Sprint Task 2
+     */
+    public void disableInteractiveMode() {
+        this.interactiveMode = false;
+    }
+
+    /**
+     * Check if interactive mode is enabled.
+     * v1.6.3 - Integration Sprint Task 2
+     */
+    public boolean isInteractiveModeEnabled() {
+        return interactiveMode;
+    }
+
+    /**
+     * Get the approval manager for interactive sessions.
+     * v1.6.3 - Integration Sprint Task 2
+     */
+    public InteractiveApprovalManager getApprovalManager() {
+        return approvalManager;
     }
 
     /**
