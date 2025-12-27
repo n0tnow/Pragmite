@@ -2,6 +2,8 @@ package com.pragmite.refactor;
 
 import com.pragmite.model.CodeSmell;
 import com.pragmite.refactor.strategies.*;
+import com.pragmite.validation.JavacValidator;
+import com.pragmite.validation.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,8 @@ public class RefactoringEngine {
 
     private final List<RefactoringStrategy> strategies;
     private final BackupManager backupManager;
+    private JavacValidator validator; // v1.6.3 - Integration Sprint
+    private boolean strictValidation = false; // v1.6.3 - Enable/disable validation
 
     public RefactoringEngine() {
         this.strategies = new ArrayList<>();
@@ -68,6 +72,36 @@ public class RefactoringEngine {
     public void registerStrategy(RefactoringStrategy strategy) {
         strategies.add(strategy);
         logger.info("Registered strategy: {}", strategy.getName());
+    }
+
+    /**
+     * Enable strict validation using javac compiler.
+     * When enabled, all refactorings will be validated for compilation correctness.
+     * v1.6.3 - Integration Sprint
+     */
+    public void enableStrictValidation() {
+        if (this.validator == null) {
+            this.validator = new JavacValidator();
+        }
+        this.strictValidation = true;
+        logger.info("Strict validation enabled");
+    }
+
+    /**
+     * Disable strict validation.
+     * v1.6.3 - Integration Sprint
+     */
+    public void disableStrictValidation() {
+        this.strictValidation = false;
+        logger.info("Strict validation disabled");
+    }
+
+    /**
+     * Check if strict validation is enabled.
+     * v1.6.3 - Integration Sprint
+     */
+    public boolean isStrictValidationEnabled() {
+        return strictValidation;
     }
 
     /**
@@ -153,6 +187,30 @@ public class RefactoringEngine {
                 } else {
                     // Actually apply the refactoring
                     String outcome = action.getStrategy().apply(action.getCodeSmell());
+                    
+                    // v1.6.3 - Integration Sprint: Post-refactoring validation
+                    if (strictValidation && validator != null) {
+                        Path sourceFile = Paths.get(action.getCodeSmell().getFilePath());
+                        if (Files.exists(sourceFile)) {
+                            ValidationResult validationResult = validator.validateFile(sourceFile);
+                            
+                            if (!validationResult.isValid()) {
+                                logger.error("Refactoring validation failed for {}", sourceFile);
+                                logger.error("Validation errors: {}", validationResult.getErrorMessage());
+                                
+                                result.addAction(action, false, 
+                                    "Validation failed: " + validationResult.getErrorMessage());
+                                failureCount++;
+                                
+                                // Stop and rollback on validation failure
+                                logger.warn("Stopping execution due to validation failure. Rolling back...");
+                                throw new RuntimeException("Validation failed: " + validationResult.getErrorMessage());
+                            } else {
+                                logger.debug("Validation passed for {}", sourceFile);
+                            }
+                        }
+                    }
+                    
                     result.addAction(action, true, outcome);
                     successCount++;
                     logger.info("Applied: {}", action.getDescription());
