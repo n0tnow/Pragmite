@@ -61,6 +61,7 @@ class AutoApplyPanel {
     }
     constructor(panel, extensionPath, jarPath) {
         this._disposables = [];
+        this._wsClient = null; // v1.6.2 - WebSocket client
         this._panel = panel;
         this._extensionPath = extensionPath;
         this._jarPath = jarPath;

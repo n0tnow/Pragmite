@@ -17,6 +17,7 @@ import com.pragmite.autofix.FixResult;
 import com.pragmite.autofix.RollbackManager;
 import com.pragmite.ai.AnalysisEngine;
 import com.pragmite.ai.AIAnalysisResult;
+import com.pragmite.websocket.ProgressWebSocketServer;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -162,6 +163,13 @@ public class PragmiteCLI implements Callable<Integer> {
     @Option(names = {"--interactive"}, description = "Interactive mode: ask for confirmation before applying each change")
     private boolean interactive;
 
+    // v1.6.2 - WebSocket Real-Time Progress (Phase 4, Sprint 3)
+    @Option(names = {"--websocket"}, description = "Enable WebSocket server for real-time progress updates")
+    private boolean enableWebSocket;
+
+    @Option(names = {"--websocket-port"}, description = "WebSocket server port", defaultValue = "8765")
+    private int websocketPort;
+
     @Override
     public Integer call() throws Exception {
         // Initialize database connection if needed
@@ -183,7 +191,24 @@ public class PragmiteCLI implements Callable<Integer> {
             }
         }
 
+        // v1.6.2 - WebSocket server instance
+        ProgressWebSocketServer websocketServer = null;
+
         try {
+            // v1.6.2 - Start WebSocket server if enabled
+            if (enableWebSocket) {
+                try {
+                    websocketServer = new ProgressWebSocketServer(websocketPort);
+                    websocketServer.start();
+                    System.out.println("🌐 WebSocket server started on port " + websocketPort);
+                } catch (Exception e) {
+                    System.err.println("⚠️  Failed to start WebSocket server: " + e.getMessage());
+                    if (verbose) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             // Generate config template if requested
             if (generateConfig) {
                 Path templatePath = projectDir.toPath().resolve(".pragmite.yaml");
@@ -312,6 +337,16 @@ public class PragmiteCLI implements Callable<Integer> {
             }
             return 2; // Exit code 2 = analysis error
         } finally {
+            // v1.6.2 - Stop WebSocket server
+            if (websocketServer != null) {
+                try {
+                    websocketServer.stop();
+                    System.out.println("🛑 WebSocket server stopped");
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
+
             // Close database connection
             if (dbManager != null) {
                 try {

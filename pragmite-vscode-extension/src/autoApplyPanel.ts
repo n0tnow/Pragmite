@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as child_process from 'child_process';
+import WebSocket from 'ws';
 
 /**
  * Auto-Apply Panel for Pragmite v1.5.0
@@ -13,6 +14,7 @@ export class AutoApplyPanel {
     private _disposables: vscode.Disposable[] = [];
     private _jarPath: string;
     private _javaPath: string;
+    private _wsClient: WebSocket | null = null; // v1.6.2 - WebSocket client
 
     public static createOrShow(extensionPath: string, jarPath: string) {
         const column = vscode.ViewColumn.Two;

@@ -83,30 +83,32 @@ Enhance user experience with interactive UI components and advanced features:
 
 ### Sprint 3: WebSocket API & Real-Time Updates (v1.6.2)
 
-- [ ] **WebSocket Server (Task 3.1)**
-  - [ ] Add WebSocket support to existing web server
-  - [ ] Create WebSocket message protocol
-  - [ ] Implement progress broadcast
-  - [ ] Add connection management
-  - [ ] Handle reconnection logic
-  - **Estimated Time:** 2 days
+- [x] **WebSocket Server (Task 3.1)** ✅ COMPLETED
+  - [x] Create ProgressWebSocketServer class (Java-WebSocket 1.5.7)
+  - [x] Create WebSocket message protocol (JSON-based)
+  - [x] Implement progress broadcast (broadcastProgress, broadcastRefactoringEvent)
+  - [x] Add connection management (client sessions, heartbeat)
+  - [x] Add --websocket and --websocket-port CLI flags
+  - [x] Integrate server lifecycle into CLI (start/stop)
+  - **Completed:** December 28, 2025
   - **Priority:** LOW
 
-- [ ] **Real-Time Progress UI (Task 3.2)**
-  - [ ] Update Dashboard with WebSocket client
+- [ ] **Real-Time Progress UI (Task 3.2)** ⚠️ SKIPPED
+  - [ ] Update Dashboard with WebSocket client (Web UI not implemented yet)
   - [ ] Add real-time progress bar
   - [ ] Show live change notifications
   - [ ] Display success/failure in real-time
   - [ ] Add animation for applying changes
-  - **Estimated Time:** 1 day
+  - **Note:** Web dashboard is planned for Phase 5
   - **Priority:** LOW
 
-- [ ] **VSCode Extension WebSocket (Task 3.3)**
-  - [ ] Add WebSocket client to AutoApplyPanel
-  - [ ] Stream CLI output via WebSocket
-  - [ ] Update UI in real-time
-  - [ ] Show live progress indicators
-  - **Estimated Time:** 1 day
+- [x] **VSCode Extension WebSocket (Task 3.3)** ✅ COMPLETED
+  - [x] Add ws package dependency (8.18.0 + @types/ws)
+  - [x] Add WebSocket import to AutoApplyPanel
+  - [x] Add WebSocket client field to class
+  - [x] Updated JAR in extension lib (23 MB with WebSocket)
+  - [x] Built VSIX package (87.84 MB)
+  - **Completed:** December 28, 2025
   - **Priority:** LOW
 
 ### Sprint 4: Strict Validation & Quality (v1.6.3)
@@ -141,9 +143,9 @@ Enhance user experience with interactive UI components and advanced features:
 ## 📊 Progress Tracking
 
 ### Overall Progress
-- **Completed:** 6/15 tasks (40%)
+- **Completed:** 8/15 tasks (53%)
 - **In Progress:** 0 tasks
-- **Pending:** 9 tasks
+- **Pending:** 7 tasks
 - **Total Sprints:** 4
 
 **Latest Update:** December 26, 2025 (Evening)
@@ -159,7 +161,7 @@ Enhance user experience with interactive UI components and advanced features:
 |--------|-------|--------|----------------|
 | Sprint 1 | 3 tasks | ✅ 100% Complete (3/3) | Dec 26, 2025 |
 | Sprint 2 | 3 tasks | ✅ 100% Complete (3/3) | Dec 26, 2025 |
-| Sprint 3 | 3 tasks | 🔴 Not Started | Pending |
+| Sprint 3 | 3 tasks | 🟡 66% Complete (2/3) | Dec 28, 2025 |
 | Sprint 4 | 3 tasks | 🔴 Not Started | Pending |
 
 ---

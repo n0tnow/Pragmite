@@ -1,0 +1,22 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.pragmite:pragmite-core >---------------------
+[INFO] Building Pragmite Core 1.5.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ pragmite-core ---
+[INFO] Deleting C:\Pragmite\pragmite-core\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pragmite-core ---
+[INFO] Copying 4 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ pragmite-core ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 149 source files with javac [debug target 21] to target\classes
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  13.442 s
+[INFO] Finished at: 2025-12-28T00:52:30+03:00
+[INFO] ------------------------------------------------------------------------

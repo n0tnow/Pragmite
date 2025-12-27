@@ -105,13 +105,15 @@
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@types/vscode": "^1.106.1",
+    "@types/ws": "^8.18.1",
     "@vscode/test-electron": "^2.5.2",
     "typescript": "^5.9.3",
     "vsce": "^2.15.0"
   },
   "dependencies": {
     "diff": "^8.0.2",
-    "monaco-editor": "^0.55.1"
+    "monaco-editor": "^0.55.1",
+    "ws": "^8.18.0"
   },
   "repository": {
     "type": "git",
