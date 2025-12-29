@@ -4,7 +4,7 @@
 
 Extension yeniden build edildi ve eksik dosyalar eklendi:
 - ✅ Compiled JavaScript files (`out/` directory)
-- ✅ JAR file (`lib/pragmite-core-1.0.0.jar` - 9.0MB)
+- ✅ JAR file (`lib/pragmite-core-1.6.3.jar`)
 - ✅ Extension successfully reinstalled
 
 **SADECE ŞUNU YAPIN**: VSCode'u reload edin (Ctrl+Shift+P → "Developer: Reload Window")

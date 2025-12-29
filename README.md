@@ -3,7 +3,7 @@
 **Java Code Quality Analysis Tool** - SonarQube-like Static Analysis with Big-O Complexity Detection
 
 > Java kod tabanları için statik analiz aracı:
-> - **21 kod kokusu dedektörü** (Long Method, God Class, Magic Numbers, Duplicate Code, vb.)
+> - **30+ kod kokusu dedektörü** (Long Method, God Class, Magic Numbers, Duplicate Code, vb.)
 > - **Büyük-O karmaşıklık analizi** (döngüler, özyineleme, stream API)
 > - **Siklomatic karmaşıklık** hesaplaması
 > - **Pragmatic Programmer skorlaması** (DRY, Orthogonality, Correctness, Performance)
@@ -19,7 +19,7 @@
 - **Auto-Apply** 🆕 - Automatically apply AI refactorings with safety backups
 - **Rollback System** 🆕 - File-based rollback for auto-apply operations
 
-**Current Version:** v1.5.0 | **Release Date:** December 26, 2025
+**Current Version:** v1.6.3 | **Release Date:** December 29, 2025
 
 ---
 
@@ -40,7 +40,7 @@
 
 ### ✅ Şu An Çalışan Özellikler
 
-**Statik Analiz ve Kod Kokuları (21 Dedektör):**
+**Statik Analiz ve Kod Kokuları (30+ Dedektör):**
 - **Long Method** - Uzun metotlar (varsayılan: 30 satır)
 - **God Class** - Çok fazla sorumluluk taşıyan sınıflar
 - **Magic Numbers** - Sabit kodlanmış sayılar (Hex/Binary/Octal/Float desteği)
@@ -105,22 +105,22 @@ JAR dosyası oluşturulacak: `target/pragmite-core-1.0-SNAPSHOT.jar`
 
 **Bir projeyi analiz et:**
 ```bash
-java -jar pragmite-core-1.0.0.jar /path/to/java/project
+java -jar pragmite-core-1.6.3.jar /path/to/java/project
 ```
 
 **JSON raporu oluştur:**
 ```bash
-java -jar pragmite-core-1.0.0.jar /path/to/java/project -o report.json
+java -jar pragmite-core-1.6.3.jar /path/to/java/project -o report.json
 ```
 
 **Sadece konsol çıktısı:**
 ```bash
-java -jar pragmite-core-1.0.0.jar /path/to/java/project -f console
+java -jar pragmite-core-1.6.3.jar /path/to/java/project -f console
 ```
 
 **JSON ve konsol birlikte:**
 ```bash
-java -jar pragmite-core-1.0.0.jar /path/to/java/project -f both -o report.json
+java -jar pragmite-core-1.6.3.jar /path/to/java/project -f both -o report.json
 ```
 
 ### CLI Parametreleri

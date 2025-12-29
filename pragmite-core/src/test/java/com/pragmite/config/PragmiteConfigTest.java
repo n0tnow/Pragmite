@@ -37,11 +37,12 @@ class PragmiteConfigTest {
               longParameterList: 8
 
             analysis:
-              incremental_analysis: true
-              parallel_analysis: false
-              max_threads: 8
-              fail_on_critical: true
-              min_quality_score: 80
+              incremental: true
+              parallel: false
+              maxThreads: 8
+              failOnCritical: true
+              minQualityScore: 80
+              reportFormat: json
             """;
 
         Path configFile = tempDir.resolve(".pragmite.yaml");

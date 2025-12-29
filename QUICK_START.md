@@ -4,8 +4,8 @@
 
 The extension has been fixed and reinstalled with all required files:
 - ✅ Compiled JavaScript files (out/extension.js)
-- ✅ JAR file (lib/pragmite-core-1.0.0.jar - 9.0MB)
-- ✅ Extension version: 1.0.0
+- ✅ JAR file (lib/pragmite-core-1.6.3.jar)
+- ✅ Extension version: 1.6.3
 
 ---
 

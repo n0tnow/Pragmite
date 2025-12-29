@@ -77,6 +77,9 @@ class AutoApplyPanel {
                 case 'runAutoApply':
                     this._runAutoApply(message.options);
                     return;
+                case 'previewSampleDiff':
+                    this._previewSampleDiff();
+                    return;
                 case 'listBackups':
                     this._listBackups(message.fileName);
                     return;
@@ -85,6 +88,50 @@ class AutoApplyPanel {
                     return;
             }
         }, null, this._disposables);
+    }
+    /**
+     * Preview sample diff using Monaco Editor - v1.6.3
+     */
+    _previewSampleDiff() {
+        const beforeCode = `package com.example;
+
+public class UserService {
+    private List<User> users;
+
+    public void processUsers() {
+        for (User user : users) {
+            if (user.isActive()) {
+                System.out.println(user.getName());
+            }
+        }
+    }
+}`;
+        const afterCode = `package com.example;
+
+import java.util.stream.Collectors;
+
+public class UserService {
+    private List<User> users;
+
+    public void processUsers() {
+        users.stream()
+            .filter(User::isActive)
+            .forEach(user -> System.out.println(user.getName()));
+    }
+
+    public List<User> getActiveUsers() {
+        return users.stream()
+            .filter(User::isActive)
+            .collect(Collectors.toList());
+    }
+}`;
+        // Import and use DiffPreviewPanel
+        vscode.commands.executeCommand('pragmite.showDiffPreview', {
+            fileName: 'UserService.java',
+            beforeCode: beforeCode,
+            afterCode: afterCode,
+            refactoringType: 'Convert to Stream API + Extract Method'
+        });
     }
     /**
      * Run auto-apply with specified options
@@ -384,7 +431,7 @@ class AutoApplyPanel {
     </style>
 </head>
 <body>
-    <h1>🤖 Pragmite Auto-Apply (v1.5.0)</h1>
+    <h1>🤖 Pragmite Auto-Apply (v1.6.3)</h1>
 
     <div class="section">
         <h2>Features</h2>
@@ -392,6 +439,7 @@ class AutoApplyPanel {
             <li>Automatic code application with safety backups</li>
             <li>JavaParser validation before applying changes</li>
             <li>Dry-run mode for preview</li>
+            <li>Monaco Editor diff preview 🆕 v1.6.3</li>
             <li>File-based rollback system</li>
             <li>MD5 checksum verification</li>
             <li>Automatic cleanup (keeps last 10 backups)</li>
@@ -420,6 +468,7 @@ class AutoApplyPanel {
         <h2>Actions</h2>
         <div class="controls">
             <button id="runAutoApply">▶️ Run Auto-Apply</button>
+            <button id="previewDiff" class="secondary">👁️ Preview Sample Diff (Monaco)</button>
             <button id="listBackups" class="secondary">📦 List All Backups</button>
             <button id="showHelp" class="secondary">❓ Help</button>
         </div>
@@ -444,6 +493,12 @@ class AutoApplyPanel {
                     createBackup: createBackup,
                     interactive: interactive
                 }
+            });
+        });
+
+        document.getElementById('previewDiff').addEventListener('click', () => {
+            vscode.postMessage({
+                command: 'previewSampleDiff'
             });
         });
 

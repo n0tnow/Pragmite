@@ -135,13 +135,16 @@ public class PragmiteConfig {
         // Normalize pattern
         String normalizedPattern = pattern.replace('\\', '/');
 
-        // Convert glob to regex
-        // IMPORTANT: Replace ** first with a placeholder to avoid ** being affected by * replacement
+        // Convert glob to regex with proper handling
         String regex = normalizedPattern
-            .replace(".", "\\.")              // Escape dots
-            .replace("**", "§DOUBLESTAR§")   // Placeholder for **
-            .replace("*", "[^/]*")            // * -> match anything except /
-            .replace("§DOUBLESTAR§", ".*");   // ** -> match everything including /
+            .replace(".", "\\.")                    // Escape dots
+            .replace("**/", "§DOUBLESTAR_SLASH§")   // Placeholder for **/
+            .replace("/**", "§SLASH_DOUBLESTAR§")   // Placeholder for /**
+            .replace("**", "§DOUBLESTAR§")          // Placeholder for **
+            .replace("*", "[^/]*")                  // * -> match anything except /
+            .replace("§DOUBLESTAR_SLASH§", "(.*/)?") // **/ -> optional prefix
+            .replace("§SLASH_DOUBLESTAR§", "(/.*)?") // /** -> optional suffix
+            .replace("§DOUBLESTAR§", ".*");          // ** -> match everything
 
         return path.matches(regex);
     }

@@ -35,10 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiffPreviewPanel = void 0;
 const vscode = __importStar(require("vscode"));
+const path = __importStar(require("path"));
 const Diff = __importStar(require("diff"));
 /**
- * Diff Preview Panel using Monaco Editor
- * Shows side-by-side comparison of before/after code
+ * Diff Preview Panel using Monaco Editor v1.6.3
+ * Shows side-by-side comparison of before/after code with Monaco Editor integration
  */
 class DiffPreviewPanel {
     static createOrShow(extensionPath, fileName, beforeCode, afterCode, refactoringType) {
@@ -52,13 +53,17 @@ class DiffPreviewPanel {
         // Otherwise, create a new panel
         const panel = vscode.window.createWebviewPanel('pragmiteDiffPreview', 'Pragmite Diff Preview', column, {
             enableScripts: true,
-            retainContextWhenHidden: true
+            retainContextWhenHidden: true,
+            localResourceRoots: [
+                vscode.Uri.file(path.join(extensionPath, 'node_modules', 'monaco-editor'))
+            ]
         });
-        DiffPreviewPanel.currentPanel = new DiffPreviewPanel(panel, fileName, beforeCode, afterCode, refactoringType);
+        DiffPreviewPanel.currentPanel = new DiffPreviewPanel(panel, extensionPath, fileName, beforeCode, afterCode, refactoringType);
     }
-    constructor(panel, fileName, beforeCode, afterCode, refactoringType) {
+    constructor(panel, extensionPath, fileName, beforeCode, afterCode, refactoringType) {
         this._disposables = [];
         this._panel = panel;
+        this._extensionPath = extensionPath;
         // Set the webview's initial html content
         this.updateContent(fileName, beforeCode, afterCode, refactoringType);
         // Listen for when the panel is disposed
@@ -69,8 +74,27 @@ class DiffPreviewPanel {
                 case 'copyDiff':
                     this._copyDiffToClipboard(message.diff);
                     return;
+                case 'acceptChanges':
+                    this._acceptChanges(message.afterCode);
+                    return;
+                case 'rejectChanges':
+                    this._rejectChanges();
+                    return;
             }
         }, null, this._disposables);
+    }
+    async _acceptChanges(afterCode) {
+        vscode.window.showInformationMessage('✅ Changes accepted! Apply to file?', 'Apply', 'Cancel')
+            .then(selection => {
+            if (selection === 'Apply') {
+                // This will be implemented when integrating with AutoApplyPanel
+                vscode.window.showInformationMessage('✅ Changes accepted and ready to apply');
+            }
+        });
+    }
+    async _rejectChanges() {
+        vscode.window.showInformationMessage('❌ Changes rejected');
+        this._panel.dispose();
     }
     updateContent(fileName, beforeCode, afterCode, refactoringType) {
         // Generate diff
@@ -87,54 +111,25 @@ class DiffPreviewPanel {
         vscode.window.showInformationMessage('Diff copied to clipboard!');
     }
     _getHtmlForWebview(fileName, beforeCode, afterCode, unifiedDiff, refactoringType, additions, deletions) {
-        // Escape HTML special characters
-        const escapeHtml = (text) => {
+        // Get Monaco Editor resources
+        const monacoBase = this._panel.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'node_modules', 'monaco-editor', 'min')));
+        // Escape for JavaScript embedding
+        const escapeJs = (text) => {
             return text
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+                .replace(/\\/g, '\\\\')
+                .replace(/`/g, '\\`')
+                .replace(/\$/g, '\\$');
         };
-        const beforeLines = beforeCode.split('\n');
-        const afterLines = afterCode.split('\n');
-        // Generate line-by-line comparison
-        const diff = Diff.diffLines(beforeCode, afterCode);
-        let beforeHtml = '';
-        let afterHtml = '';
-        let beforeLineNum = 1;
-        let afterLineNum = 1;
-        diff.forEach(part => {
-            const lines = part.value.split('\n').filter(line => line.length > 0 || part.value.endsWith('\n'));
-            if (part.added) {
-                // Added lines (only in after)
-                lines.forEach(line => {
-                    afterHtml += `<div class="line added"><span class="line-num">${afterLineNum++}</span><span class="line-content">+ ${escapeHtml(line)}</span></div>`;
-                });
-            }
-            else if (part.removed) {
-                // Removed lines (only in before)
-                lines.forEach(line => {
-                    beforeHtml += `<div class="line removed"><span class="line-num">${beforeLineNum++}</span><span class="line-content">- ${escapeHtml(line)}</span></div>`;
-                });
-            }
-            else {
-                // Unchanged lines (in both)
-                lines.forEach(line => {
-                    beforeHtml += `<div class="line"><span class="line-num">${beforeLineNum++}</span><span class="line-content">  ${escapeHtml(line)}</span></div>`;
-                    afterHtml += `<div class="line"><span class="line-num">${afterLineNum++}</span><span class="line-content">  ${escapeHtml(line)}</span></div>`;
-                });
-            }
-        });
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diff Preview</title>
+    <title>Diff Preview - Monaco Editor</title>
+    <link rel="stylesheet" href="${monacoBase}/vs/editor/editor.main.css">
     <style>
         body {
-            font-family: var(--vscode-editor-font-family);
+            font-family: var(--vscode-font-family);
             color: var(--vscode-foreground);
             background-color: var(--vscode-editor-background);
             margin: 0;
@@ -144,118 +139,54 @@ class DiffPreviewPanel {
 
         .header {
             background-color: var(--vscode-editorGroupHeader-tabsBackground);
-            padding: 15px 20px;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--vscode-panel-border);
         }
 
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
             color: var(--vscode-textLink-activeForeground);
         }
 
         .header-info {
             display: flex;
             gap: 20px;
-            font-size: 13px;
+            align-items: center;
+            font-size: 12px;
             color: var(--vscode-descriptionForeground);
         }
 
         .stats {
             display: flex;
-            gap: 15px;
-            margin-top: 10px;
+            gap: 12px;
         }
 
         .stat {
-            padding: 5px 10px;
+            padding: 4px 10px;
             border-radius: 3px;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 500;
         }
 
         .stat.additions {
-            background-color: rgba(0, 255, 0, 0.1);
-            color: var(--vscode-terminal-ansiGreen);
+            background-color: rgba(0, 255, 0, 0.12);
+            color: #4ec9b0;
         }
 
         .stat.deletions {
-            background-color: rgba(255, 0, 0, 0.1);
-            color: var(--vscode-terminal-ansiRed);
+            background-color: rgba(255, 0, 0, 0.12);
+            color: #f48771;
         }
 
-        .diff-container {
-            display: flex;
-            height: calc(100vh - 150px);
-        }
-
-        .diff-pane {
-            flex: 1;
-            overflow-y: auto;
-            border-right: 1px solid var(--vscode-panel-border);
-            background-color: var(--vscode-editor-background);
-        }
-
-        .diff-pane:last-child {
-            border-right: none;
-        }
-
-        .diff-pane-header {
-            position: sticky;
-            top: 0;
-            background-color: var(--vscode-editorGroupHeader-tabsBackground);
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--vscode-panel-border);
-            font-weight: bold;
-            z-index: 10;
-        }
-
-        .line {
-            display: flex;
-            font-family: var(--vscode-editor-font-family);
-            font-size: var(--vscode-editor-font-size, 14px);
-            line-height: 1.6;
-            white-space: pre;
-        }
-
-        .line-num {
-            display: inline-block;
-            width: 50px;
-            padding: 0 10px;
-            text-align: right;
-            color: var(--vscode-editorLineNumber-foreground);
-            background-color: var(--vscode-editorGutter-background);
-            user-select: none;
-            flex-shrink: 0;
-        }
-
-        .line-content {
-            padding: 0 10px;
-            flex: 1;
-            overflow-x: auto;
-        }
-
-        .line.added {
-            background-color: rgba(0, 255, 0, 0.15);
-        }
-
-        .line.added .line-content {
-            color: var(--vscode-terminal-ansiGreen);
-        }
-
-        .line.removed {
-            background-color: rgba(255, 0, 0, 0.15);
-        }
-
-        .line.removed .line-content {
-            color: var(--vscode-terminal-ansiRed);
-        }
-
-        .line:hover {
-            background-color: var(--vscode-list-hoverBackground);
+        #monaco-container {
+            height: calc(100vh - 130px);
+            width: 100%;
         }
 
         .actions {
-            padding: 15px 20px;
+            padding: 12px 20px;
             background-color: var(--vscode-editorGroupHeader-tabsBackground);
             border-top: 1px solid var(--vscode-panel-border);
             display: flex;
@@ -266,10 +197,11 @@ class DiffPreviewPanel {
             background-color: var(--vscode-button-background);
             color: var(--vscode-button-foreground);
             border: none;
-            padding: 8px 16px;
+            padding: 6px 14px;
             cursor: pointer;
             border-radius: 3px;
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
         button:hover {
@@ -284,130 +216,90 @@ class DiffPreviewPanel {
         button.secondary:hover {
             background-color: var(--vscode-button-secondaryHoverBackground);
         }
-
-        .unified-diff {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: var(--vscode-editor-background);
-            border: 1px solid var(--vscode-panel-border);
-            padding: 20px;
-            max-width: 80%;
-            max-height: 80%;
-            overflow: auto;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .unified-diff.visible {
-            display: block;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .overlay.visible {
-            display: block;
-        }
-
-        .unified-diff pre {
-            margin: 0;
-            font-family: var(--vscode-editor-font-family);
-            font-size: 13px;
-            white-space: pre-wrap;
-        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📝 ${escapeHtml(fileName)}</h1>
+        <h1>📝 ${fileName}</h1>
         <div class="header-info">
-            <span><strong>Refactoring:</strong> ${escapeHtml(refactoringType)}</span>
-        </div>
-        <div class="stats">
-            <span class="stat additions">+${additions} additions</span>
-            <span class="stat deletions">-${deletions} deletions</span>
+            <span><strong>Refactoring:</strong> ${refactoringType}</span>
+            <div class="stats">
+                <span class="stat additions">+${additions} additions</span>
+                <span class="stat deletions">-${deletions} deletions</span>
+            </div>
         </div>
     </div>
 
-    <div class="diff-container">
-        <div class="diff-pane">
-            <div class="diff-pane-header">BEFORE</div>
-            <div class="code-lines">
-                ${beforeHtml}
-            </div>
-        </div>
-        <div class="diff-pane">
-            <div class="diff-pane-header">AFTER</div>
-            <div class="code-lines">
-                ${afterHtml}
-            </div>
-        </div>
-    </div>
+    <div id="monaco-container"></div>
 
     <div class="actions">
-        <button id="copyDiff" class="secondary">📋 Copy Unified Diff</button>
-        <button id="showUnified" class="secondary">📄 Show Unified Diff</button>
+        <button id="copyDiff" class="secondary">📋 Copy Diff</button>
+        <button id="acceptChanges">✅ Accept Changes</button>
+        <button id="rejectChanges" class="secondary">❌ Reject Changes</button>
     </div>
 
-    <div class="overlay" id="overlay"></div>
-    <div class="unified-diff" id="unifiedDiff">
-        <h3>Unified Diff Format</h3>
-        <pre>${escapeHtml(unifiedDiff)}</pre>
-        <button onclick="closeUnified()">Close</button>
-    </div>
-
+    <script src="${monacoBase}/vs/loader.js"></script>
     <script>
         const vscode = acquireVsCodeApi();
 
-        document.getElementById('copyDiff').addEventListener('click', () => {
-            const diff = \`${unifiedDiff.replace(/`/g, '\\`')}\`;
-            vscode.postMessage({
-                command: 'copyDiff',
-                diff: diff
+        require.config({ paths: { vs: '${monacoBase}/vs' } });
+
+        require(['vs/editor/editor.main'], function() {
+            const beforeCode = \`${escapeJs(beforeCode)}\`;
+            const afterCode = \`${escapeJs(afterCode)}\`;
+
+            // Create Monaco diff editor
+            const diffEditor = monaco.editor.createDiffEditor(
+                document.getElementById('monaco-container'),
+                {
+                    enableSplitViewResizing: true,
+                    renderSideBySide: true,
+                    readOnly: true,
+                    automaticLayout: true,
+                    fontSize: 13,
+                    minimap: { enabled: true },
+                    scrollBeyondLastLine: false,
+                    renderWhitespace: 'selection',
+                    diffWordWrap: 'on',
+                    theme: document.body.classList.contains('vscode-dark') ? 'vs-dark' : 'vs'
+                }
+            );
+
+            // Set diff models
+            const originalModel = monaco.editor.createModel(beforeCode, 'java');
+            const modifiedModel = monaco.editor.createModel(afterCode, 'java');
+
+            diffEditor.setModel({
+                original: originalModel,
+                modified: modifiedModel
             });
-        });
 
-        document.getElementById('showUnified').addEventListener('click', () => {
-            document.getElementById('overlay').classList.add('visible');
-            document.getElementById('unifiedDiff').classList.add('visible');
-        });
-
-        document.getElementById('overlay').addEventListener('click', closeUnified);
-
-        function closeUnified() {
-            document.getElementById('overlay').classList.remove('visible');
-            document.getElementById('unifiedDiff').classList.remove('visible');
-        }
-
-        // Sync scrolling between panes
-        const panes = document.querySelectorAll('.diff-pane');
-        let isScrolling = false;
-
-        panes.forEach(pane => {
-            pane.addEventListener('scroll', function() {
-                if (isScrolling) return;
-                isScrolling = true;
-
-                panes.forEach(otherPane => {
-                    if (otherPane !== pane) {
-                        otherPane.scrollTop = pane.scrollTop;
-                    }
+            // Button handlers
+            document.getElementById('copyDiff').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'copyDiff',
+                    diff: \`--- Before\\n+++ After\\n\` + afterCode
                 });
+            });
 
-                setTimeout(() => {
-                    isScrolling = false;
-                }, 50);
+            document.getElementById('acceptChanges').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'acceptChanges',
+                    afterCode: afterCode
+                });
+            });
+
+            document.getElementById('rejectChanges').addEventListener('click', () => {
+                vscode.postMessage({
+                    command: 'rejectChanges'
+                });
+            });
+
+            // Cleanup on dispose
+            window.addEventListener('beforeunload', () => {
+                diffEditor.dispose();
+                originalModel.dispose();
+                modifiedModel.dispose();
             });
         });
     </script>
